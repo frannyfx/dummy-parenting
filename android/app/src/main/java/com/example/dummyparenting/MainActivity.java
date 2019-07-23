@@ -1,159 +1,101 @@
 package com.example.dummyparenting;
 
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
-import android.bluetooth.BluetoothDevice;
+import android.Manifest;
+import android.app.ActivityManager;
+import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
+import android.widget.CompoundButton;
+import android.widget.Switch;
 
-import java.util.Set;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
-public class MainActivity extends AppCompatActivity implements OnDeviceClickListener {
-    // Bluetooth
-    private final static int REQUEST_ENABLE_BT = 1;
-    private BluetoothManager bluetoothManager;
-    private BluetoothDevice[] currentDeviceList;
+public class MainActivity extends AppCompatActivity {
+    private static final int REQUEST_PERMISSIONS = 1;
+    private static final String TAG = "main";
 
-    // UI
-    private RecyclerView recyclerView;
-    private DevicesAdapter adapter;
-    private RecyclerView.LayoutManager layoutManager;
+    // Permissions
+    private String permissions[] =  new String[] {Manifest.permission.RECORD_AUDIO, Manifest.permission.WRITE_EXTERNAL_STORAGE};
+    private boolean audioRecordingPermission = false;
+    private boolean writeExternalStoragePermission = false;
 
+    /**
+     * Initialise the activity.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.bluetooth_device_list);
+        setContentView(R.layout.main);
 
         // Initialise UI
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.main_toolbar);
         setSupportActionBar(toolbar);
 
-        recyclerView = (RecyclerView) findViewById(R.id.devices_view);
-        recyclerView.setHasFixedSize(true);
-
-        layoutManager = new LinearLayoutManager(this);
-        recyclerView.setLayoutManager(layoutManager);
-
-        // Empty list
-        adapter = new DevicesAdapter(new BluetoothDevice[0]);
-        adapter.setClickListener(this);
-        recyclerView.setAdapter(adapter);
-
-        // Start BT
-        initialiseBluetooth();
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.bluetooth_menu, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.action_refresh:
-                refreshDeviceList();
-                return true;
-
-            default:
-                // If we got here, the user's action was not recognized.
-                // Invoke the superclass to handle it.
-                return super.onOptionsItemSelected(item);
-
-        }
+        // Switch
+        Switch backgroundServiceSwitch = (Switch) findViewById(R.id.switch_background_service);
+        backgroundServiceSwitch.setChecked(isServiceRunningInForeground(this, MonitorService.class));
+        backgroundServiceSwitch.setOnCheckedChangeListener((CompoundButton view, boolean checked) -> backgroundServiceToggled(checked));
     }
 
     /**
-     * Enable BT if it is supported.
+     * Check whether a specific service is currently running.
+     * TODO: Move to utils.
      */
-    private void initialiseBluetooth() {
-        // Create new BT manager
-        bluetoothManager = BluetoothManager.getInstance();
+    public static boolean isServiceRunningInForeground(Context context, Class<?> serviceClass) {
+        ActivityManager manager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (serviceClass.getName().equals(service.service.getClassName())) {
+                if (service.foreground) {
+                    return true;
+                }
 
-        // Check if Bluetooth is supported.
-        if (!bluetoothManager.isBluetoothSupported()) {
-            // Show alert
-            new AlertDialog.Builder(this)
-                .setTitle("Bluetooth not supported.")
-                .setMessage("Your device does not support Bluetooth.").show();
-            return;
+            }
         }
+        return false;
+    }
 
-        // Enable BT if it is not yet enabled.
-        if (!bluetoothManager.isBluetoothEnabled()) {
-            bluetoothManager.enableBluetooth(this, REQUEST_ENABLE_BT);
+    /**
+     * Stop and start the background service.
+     * @param enabled Whether the background service should be enabled or disabled.
+     */
+    private void backgroundServiceToggled(boolean enabled) {
+        Log.d(TAG, "Background service " + (enabled ? "enabled" : "disabled") + ".");
+        if (enabled) {
+            // Request audio perms
+            ActivityCompat.requestPermissions(this, permissions, REQUEST_PERMISSIONS);
         } else {
-            bluetoothManager.printPairedDevices();
-            refreshDeviceList();
+            Intent serviceIntent = new Intent(this, MonitorService.class);
+            stopService(serviceIntent);
         }
     }
 
     /**
-     * Handle the response received from the request to enable BT.
-     */
-    private void handleBluetoothResponse(int result) {
-        Log.d("blem", "Received REQUEST_ENABLE_BT response.");
-
-        if (result == RESULT_OK) {
-            bluetoothManager.printPairedDevices();
-            refreshDeviceList();
-        } else {
-            // Show alert saying that BT is required!
-            new AlertDialog.Builder(this)
-                .setTitle("Bluetooth is required.")
-                .setMessage("This application requires Bluetooth to function.").show();
-        }
-    }
-
-    /**
-     * Refresh the list of devices available.
-     */
-    private void refreshDeviceList() {
-        Log.d("blem", "Refreshing device list...");
-
-        // Get paired devices and convert it to an array
-        Set<BluetoothDevice> devices = bluetoothManager.getPairedDevices();
-        currentDeviceList = new BluetoothDevice[devices.size()];
-        currentDeviceList = devices.toArray(currentDeviceList);
-
-        // Create new adapter and swap the dataset
-        adapter = new DevicesAdapter(currentDeviceList);
-        adapter.setClickListener(this);
-        recyclerView.swapAdapter(adapter, true);
-    }
-
-    /**
-     * Handle the click event for items in the list.
-     * @param view The view that was clicked.
-     * @param position The position of the item.
+     * Receive the results to the permissions request before starting the background service.
      */
     @Override
-    public void onClick(View view, int position) {
-        Log.d("blem", String.format("Selected device with index %d - %s", position, currentDeviceList[position].getName()));
-
-        // Connect to device
-        bluetoothManager.connectToDevice(currentDeviceList[position]);
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        switch (requestCode) {
-            case REQUEST_ENABLE_BT:
-                handleBluetoothResponse(resultCode);
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode){
+            case REQUEST_PERMISSIONS:
+                audioRecordingPermission = grantResults[0] == PackageManager.PERMISSION_GRANTED;
+                writeExternalStoragePermission = grantResults[1] == PackageManager.PERMISSION_GRANTED;
                 break;
-            default:
-                Log.w("blem", "Unhandled activity result received.");
+        }
+
+        if (audioRecordingPermission && writeExternalStoragePermission) {
+            // Start service
+            Intent serviceIntent = new Intent(this, MonitorService.class);
+            ContextCompat.startForegroundService(this, serviceIntent);
+        } else {
+            Log.d(TAG, "No permissions!");
         }
     }
 }

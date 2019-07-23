@@ -1,11 +1,9 @@
 package com.example.dummyparenting;
 
 import android.bluetooth.BluetoothDevice;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.TextView;
 
 import androidx.cardview.widget.CardView;
@@ -56,7 +54,7 @@ public class DevicesAdapter extends RecyclerView.Adapter<DevicesAdapter.DeviceHo
                                                           int viewType) {
         // create a new view
         CardView v = (CardView) LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.bluetooth_device_view, parent, false);
+                .inflate(R.layout.device_list_item, parent, false);
 
         DeviceHolder vh = new DeviceHolder(v);
         return vh;

@@ -14,8 +14,11 @@ import java.util.Set;
 import java.util.UUID;
 
 public class BluetoothManager {
+    private static final String TAG = "bluetooth";
+
     // Singleton
     private static BluetoothManager instance = null;
+
 
     private BluetoothAdapter bluetoothAdapter;
 
@@ -74,9 +77,9 @@ public class BluetoothManager {
 
         // List them in the console
         for (BluetoothDevice device : pairedDevices) {
-            Log.d("blem", String.format("Got device: %s (%s)", device.getName(), device.getAddress()));
+            Log.d(TAG, String.format("Got device: %s (%s)", device.getName(), device.getAddress()));
             for (ParcelUuid uuid : device.getUuids()) {
-                Log.d("blem", uuid.toString());
+                Log.d(TAG, uuid.toString());
             }
         }
     }
@@ -90,7 +93,7 @@ public class BluetoothManager {
             BluetoothSocket socket = device.createRfcommSocketToServiceRecord(UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"));
             socket.connect();
         } catch (IOException e) {
-            Log.d("blem", e.getMessage());
+            Log.d(TAG, e.getMessage());
         }
     }
 
