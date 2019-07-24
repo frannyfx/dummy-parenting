@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="preference_file_key">com.example.dummyparenting.prefs</string>
+    <bool name="background_recording_default">false</bool>
+    <bool name="schedule_default">false</bool>
+    <integer name="circular_recording_length_default">5</integer>
+    <integer name="post_trigger_recording_length_default">10</integer>
+</resources>

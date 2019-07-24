@@ -7,6 +7,9 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
@@ -22,6 +25,9 @@ public class MainActivity extends AppCompatActivity {
     private static final int REQUEST_PERMISSIONS = 1;
     private static final String TAG = "main";
 
+    // Service
+    private MonitorManager monitorManager;
+
     // Permissions
     private String permissions[] =  new String[] {Manifest.permission.RECORD_AUDIO, Manifest.permission.WRITE_EXTERNAL_STORAGE};
     private boolean audioRecordingPermission = false;
@@ -35,50 +41,47 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
 
-        // Initialise UI
-        Toolbar toolbar = (Toolbar) findViewById(R.id.main_toolbar);
-        setSupportActionBar(toolbar);
+        // Setup monitor manager
+        monitorManager = MonitorManager.getInstance(this);
 
-        // Switch
-        Switch backgroundServiceSwitch = (Switch) findViewById(R.id.switch_background_service);
-        backgroundServiceSwitch.setChecked(isServiceRunningInForeground(this, MonitorService.class));
-        backgroundServiceSwitch.setOnCheckedChangeListener((CompoundButton view, boolean checked) -> backgroundServiceToggled(checked));
+        // Request required permissions
+        ActivityCompat.requestPermissions(this, permissions, REQUEST_PERMISSIONS);
     }
 
     /**
-     * Check whether a specific service is currently running.
-     * TODO: Move to utils.
+     * Used to stop and start the monitoring service when coming back from the Settings panel.
      */
-    public static boolean isServiceRunningInForeground(Context context, Class<?> serviceClass) {
-        ActivityManager manager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
-        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
-            if (serviceClass.getName().equals(service.service.getClassName())) {
-                if (service.foreground) {
-                    return true;
-                }
-
-            }
-        }
-        return false;
+    @Override
+    public void onResume(){
+        super.onResume();
+        monitorManager.toggleMonitor(Preferences.getBackgroundRecordingEnabled(this));
     }
 
-    /**
-     * Stop and start the background service.
-     * @param enabled Whether the background service should be enabled or disabled.
-     */
-    private void backgroundServiceToggled(boolean enabled) {
-        Log.d(TAG, "Background service " + (enabled ? "enabled" : "disabled") + ".");
-        if (enabled) {
-            // Request audio perms
-            ActivityCompat.requestPermissions(this, permissions, REQUEST_PERMISSIONS);
-        } else {
-            Intent serviceIntent = new Intent(this, MonitorService.class);
-            stopService(serviceIntent);
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.main_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_settings:
+                // Open settings activity
+                Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
+                MainActivity.this.startActivity(intent);
+                return true;
+
+            default:
+                // If we got here, the user's action was not recognized.
+                // Invoke the superclass to handle it.
+                return super.onOptionsItemSelected(item);
         }
     }
 
     /**
-     * Receive the results to the permissions request before starting the background service.
+     * Receive the results to the permissions request before starting the monitoring service.
      */
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -90,12 +93,13 @@ public class MainActivity extends AppCompatActivity {
                 break;
         }
 
-        if (audioRecordingPermission && writeExternalStoragePermission) {
-            // Start service
-            Intent serviceIntent = new Intent(this, MonitorService.class);
-            ContextCompat.startForegroundService(this, serviceIntent);
-        } else {
+        // Start the service if it's enabled and we have the permissions
+        if (audioRecordingPermission && writeExternalStoragePermission)
+            if (Preferences.getBackgroundRecordingEnabled(this))
+                monitorManager.startMonitor();
+            else
+                Log.d(TAG, "Background recording disabled: not starting.");
+        else
             Log.d(TAG, "No permissions!");
-        }
     }
 }
