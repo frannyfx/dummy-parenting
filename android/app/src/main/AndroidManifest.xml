@@ -21,6 +21,9 @@
         <activity android:name=".ScheduleActivity" android:parentActivityName=".SettingsActivity">
             <meta-data android:name="android.support.PARENT_ACTIVITY" android:value=".SettingsActivity" />
         </activity>
+        <activity android:name=".TriggersActivity" android:parentActivityName=".SettingsActivity">
+            <meta-data android:name="android.support.PARENT_ACTIVITY" android:value=".SettingsActivity" />
+        </activity>
         <service android:name=".MonitorService" />
     </application>
     <uses-permission android:name="android.permission.BLUETOOTH" />

@@ -57,6 +57,9 @@ public class MainActivity extends AppCompatActivity {
         monitorManager.toggleMonitor(Preferences.getBackgroundRecordingEnabled(this));
     }
 
+    /**
+     * Create a specific menu in the toolbar.
+     */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
@@ -64,6 +67,9 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
+    /**
+     * Handle menu button presses.
+     */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {

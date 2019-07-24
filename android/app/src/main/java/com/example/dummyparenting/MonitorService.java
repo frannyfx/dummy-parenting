@@ -36,7 +36,9 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class MonitorService extends Service {
     public static final String CHANNEL_ID = "MonitorServiceChannel";
@@ -66,6 +68,7 @@ public class MonitorService extends Service {
 
     // PubNub
     private PubNub pn;
+    private List<String> subscribedChannels;
 
     @Override
     public void onCreate() {
@@ -91,6 +94,10 @@ public class MonitorService extends Service {
         return START_NOT_STICKY;
     }
 
+    /**
+     * Start the monitoring thread that managed settings updates and launching
+     * the audio recording thread.
+     */
     private void startMonitoring() {
         isMonitoring = true;
         monitoringThread = new Thread(new Runnable() {
@@ -102,11 +109,15 @@ public class MonitorService extends Service {
         monitoringThread.start();
     }
 
+    /**
+     * Monitor thread loop.
+     */
     private void monitor() {
         while (isMonitoring) {
             // Get preferences
             recordingEnabled = Preferences.getBackgroundRecordingEnabled(this);
             scheduleEnabled = Preferences.getScheduleEnabled(this);
+            updateChannelSubscriptions(pn);
             waitingForUpdate = true;
 
             // If background recording is enabled...
@@ -141,7 +152,6 @@ public class MonitorService extends Service {
     /**
      * When the settings are changed in the settings app, switch the waitingForUpdate
      * flag so the monitoring thread refreshes the settings.
-     * @param event
      */
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onSettingsChangedEvent(SettingsChangedEvent event) {
@@ -180,6 +190,10 @@ public class MonitorService extends Service {
         isRecording = false;
     }
 
+    /**
+     * Create the correct notification depending on whether we're currently recording.
+     * @return The notification.
+     */
     private Notification getNotification() {
         return new Notification.Builder(this)
                 .setContentTitle(isRecording ? "DummyParenting is active" : "DummyParenting is waiting")
@@ -187,6 +201,9 @@ public class MonitorService extends Service {
                 .setSmallIcon(isRecording ? R.drawable.ic_mic_black_24dp : R.drawable.ic_mic_off_black_24dp).build();
     }
 
+    /**
+     * Update the notification that has already been created.
+     */
     private void updateNotification() {
         NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         mNotificationManager.notify(NOTIFICATION_ID, getNotification());
@@ -201,8 +218,11 @@ public class MonitorService extends Service {
         pnConfiguration.setSubscribeKey("sub-c-a663fb80-ad59-11e9-a87a-b2acb6d6da6e");
         pnConfiguration.setSecure(false);
 
+        // Create PubNub and subscribe to channels
         pn = new PubNub(pnConfiguration);
-        pn.subscribe().channels(Arrays.asList("trigger_test")).execute();
+        updateChannelSubscriptions(pn);
+
+        // Add subscribe callback
         pn.addListener(new SubscribeCallback() {
             @Override
             public void status(PubNub pubnub, PNStatus status) {
@@ -253,6 +273,22 @@ public class MonitorService extends Service {
 
             }
         });
+    }
+
+    /**
+     * Update PubNub's channel subscriptions when settings change.
+     * @param pn The PubNub instance.
+     */
+    private void updateChannelSubscriptions(PubNub pn) {
+        // Unsubscribe from previous channels first
+        if (subscribedChannels != null) {
+            pn.unsubscribe().channels(subscribedChannels).execute();
+        }
+
+        // Subsrcibe to new channels
+        subscribedChannels = new ArrayList<String>(Preferences.getTriggersList(this));
+        pn.subscribe().channels(subscribedChannels.size() == 0 ? Arrays.asList("trigger_test") : subscribedChannels).execute();
+        Log.d(TAG, String.format("PubNub subscribed to %d trigger channel%s.", subscribedChannels.size(), subscribedChannels.size() == 1 ? "" : "s"));
     }
 
     /**
@@ -396,7 +432,7 @@ public class MonitorService extends Service {
         short rearrangedBuffer[];
         if (bufferWrapped) {
             // Make it the maximum length
-            rearrangedBuffer = new short[sampleRate * circularRecordingLength * numChannels];
+            rearrangedBuffer = new short[sampleRate * numChannels * circularRecordingLength * 60];
 
             for (int i = bufferPosition; i < circularBuffer.length; i++) {
                 rearrangedBuffer[i - bufferPosition] = circularBuffer[i];

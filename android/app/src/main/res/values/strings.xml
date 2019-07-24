@@ -5,4 +5,5 @@
     <string name="schedule_key">schedule</string>
     <string name="circular_recording_length_key">circular_recording_length</string>
     <string name="post_trigger_recording_length_key">post_trigger_recording_length</string>
+    <string name="triggers_list_key">triggers_list_key</string>
 </resources>

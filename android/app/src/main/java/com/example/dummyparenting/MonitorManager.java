@@ -14,11 +14,19 @@ public class MonitorManager {
     private Context context;
     private boolean started;
 
+    /**
+     * Create the monitor manager simpleton instance and set the initial state
+     * of whether the service is already running.
+     * @param context The context where it's instantiated from.
+     */
     private MonitorManager(Context context) {
         started = Utils.isServiceRunningInForeground(context, MonitorManager.class);
         this.context = context;
     }
 
+    /**
+     * Create the simpleton.
+     */
     public static MonitorManager getInstance(Context context) {
         if (instance == null)
             instance = new MonitorManager(context);
@@ -26,6 +34,9 @@ public class MonitorManager {
         return instance;
     }
 
+    /**
+     * Start the foreground service.
+     */
     public void startMonitor() {
         if (started)
             return;
@@ -36,6 +47,9 @@ public class MonitorManager {
         started = true;
     }
 
+    /**
+     * Stop the foreground service.
+     */
     public void stopMonitor() {
         if (!started)
             return;
@@ -46,6 +60,10 @@ public class MonitorManager {
         started = false;
     }
 
+    /**
+     * Toggle the foreground service.
+     * @param status Whether the service should be stopped or started.
+     */
     public void toggleMonitor(boolean status) {
         if (status)
             startMonitor();

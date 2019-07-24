@@ -31,7 +31,14 @@
                 android:id="@+id/schedule_default_state_textview"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
                 android:text="When enabled, it will enable audio collection, even when the app is closed." />
+
+            <Button
+                android:id="@+id/triggers_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Setup triggers" />
         </LinearLayout>
 
         <LinearLayout
@@ -128,5 +135,6 @@
                 android:gravity="center"
                 android:text="5 mins" />
         </LinearLayout>
+
     </LinearLayout>
 </ScrollView>
