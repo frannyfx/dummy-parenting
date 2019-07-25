@@ -1,9 +1,60 @@
 <resources>
-    <string name="app_name">DummyParenting</string>
-    <string name="refresh">Refresh</string>
+    <!-- Settings keys -->
     <string name="background_recording_key">background_recording</string>
     <string name="schedule_key">schedule</string>
     <string name="circular_recording_length_key">circular_recording_length</string>
     <string name="post_trigger_recording_length_key">post_trigger_recording_length</string>
     <string name="triggers_list_key">triggers_list_key</string>
+
+    <!-- L10n -->
+    <string name="app_name">DummyParenting</string>
+    <string name="refresh">Refresh</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
+
+    <!-- MainActivity -->
+    <string name="main_activity_title">Recordings</string>
+
+    <!-- MonitorService -->
+    <string name="recording_notification_title_active">DummyParenting is active</string>
+    <string name="recording_notification_title_inactive">DummyParenting is waiting</string>
+    <string name="recording_notification_content_active">Your microphone is being monitored.</string>
+    <string name="recording_notification_content_inactive">Waiting for schedule...</string>
+
+    <!-- ScheduleActivity -->
+    <string name="schedule_activity_title">Customise schedule</string>
+    <string name="schedule_default_state_option_name">Schedule default state</string>
+    <string name="schedule_default_state_option_description">If the schedule\'s default state is &quot;on&quot;, you will define time slots where background audio collection is disabled, while if it\'s &quot;off&quot;, you will define time slots where audio collection is enabled.</string>
+    <string name="schedule_blacklisted_time_slots">Blacklisted time slots</string>
+    <string name="schedule_whitelisted_time_slots">Whitelisted time slots</string>
+
+    <!-- SettingsActivity -->
+    <string name="settings_activity_title">Settings</string>
+    <string name="settings_recording_disabled">Disabled</string>
+    <string name="settings_minutes_template">%d %s</string>
+    <string name="settings_minutes_singular">min</string>
+    <string name="settings_minutes_plural">mins</string>
+    <string name="settings_background_recording_option_name">Background recording</string>
+    <string name="settings_background_recording_option_description">When enabled, it will enable audio collection, even when the app is closed.</string>
+    <string name="settings_setup_triggers_button">Setup triggers</string>
+    <string name="settings_scheduled_recording_option_name">Scheduled recording</string>
+    <string name="settings_scheduled_recording_option_description">When enabled, it will allow you to setup a schedule so background audio will only be collected within specific time ranges.</string>
+    <string name="settings_customise_schedule_button">Customise schedule</string>
+    <string name="settings_circular_recording_length_option_name">Circular recording length</string>
+    <string name="settings_post_trigger_recording_length_option_name">Post-trigger recording length</string>
+
+    <!-- TriggersActivity -->
+    <string name="triggers_activity_title">Triggers</string>
+    <string name="triggers_add_trigger_title">Add trigger</string>
+    <string name="triggers_add_trigger_message">Type in the serial number of the button you\'d like to use as a trigger.</string>
+    <string name="triggers_add_trigger_add">Add</string>
+    <string name="triggers_add_trigger_cancel">Cancel</string>
+    <string name="triggers_invalid_trigger_title">Invalid trigger</string>
+    <string name="triggers_invalid_trigger_message">The trigger code you entered is invalid. Please check your spelling and try again.</string>
+    <string name="triggers_duplicate_trigger_title">Duplicate trigger</string>
+    <string name="triggers_duplicate_trigger_message">The trigger code you entered is already in the list.</string>
+    <string name="triggers_delete_trigger_title">Delete trigger</string>
+    <string name="triggers_delete_trigger_message">Are you sure you like to delete this trigger?</string>
+    <string name="triggers_delete_trigger_confirm">Yes</string>
+    <string name="triggers_delete_trigger_cancel">No</string>
 </resources>

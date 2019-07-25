@@ -1,25 +1,17 @@
 package com.example.dummyparenting;
 
-import android.Manifest;
 import android.app.Notification;
-import android.app.NotificationChannel;
 import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
-import android.os.Build;
-import android.os.Environment;
 import android.os.IBinder;
 import android.util.Log;
-import android.widget.Toast;
 
 import androidx.annotation.Nullable;
-import androidx.core.app.ActivityCompat;
-import androidx.core.app.NotificationCompat;
 
 import com.pubnub.api.PNConfiguration;
 import com.pubnub.api.PubNub;
@@ -32,10 +24,7 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -196,9 +185,9 @@ public class MonitorService extends Service {
      */
     private Notification getNotification() {
         return new Notification.Builder(this)
-                .setContentTitle(isRecording ? "DummyParenting is active" : "DummyParenting is waiting")
-                .setContentText(isRecording ? "Your microphone is being monitored." : "Waiting for schedule...")
-                .setSmallIcon(isRecording ? R.drawable.ic_mic_black_24dp : R.drawable.ic_mic_off_black_24dp).build();
+                .setContentTitle(getString(isRecording ? R.string.recording_notification_title_active : R.string.recording_notification_title_inactive))
+                .setContentText(getString(isRecording ? R.string.recording_notification_content_active : R.string.recording_notification_content_inactive))
+                .setSmallIcon(isRecording ? R.drawable.icon_mic : R.drawable.icon_mic_off).build();
     }
 
     /**
@@ -466,7 +455,7 @@ public class MonitorService extends Service {
         isMonitoring = false;
 
         // Handle PN
-        pn.unsubscribe().channels(Arrays.asList("trigger_test")).execute();
+        pn.unsubscribe().channels(subscribedChannels).execute();
         pn = null;
 
         Log.d(TAG, "Foreground service stopped.");

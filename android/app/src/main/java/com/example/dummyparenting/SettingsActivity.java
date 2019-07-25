@@ -44,7 +44,7 @@ public class SettingsActivity extends AppCompatActivity {
         setContentView(R.layout.settings);
 
         // Initialise UI
-        getSupportActionBar().setTitle("Settings");
+        getSupportActionBar().setTitle(getString(R.string.settings_activity_title));
 
         // Set-up form
         backgroundRecordingSwitch = findViewById(R.id.background_recording_switch);
@@ -136,8 +136,17 @@ public class SettingsActivity extends AppCompatActivity {
      * of circular/post-trigger recording in minutes.
      */
     private void updateRecordingLengthText() {
-        circularRecordingTextView.setText(circularRecordingLength == 0 ? "Disabled" : String.format("%d min%s", circularRecordingLength, circularRecordingLength == 1 ? "" : "s"));
-        postTriggerRecordingTextView.setText(postTriggerRecordingLength == 0 ? "Disabled": String.format("%d min%s", postTriggerRecordingLength, postTriggerRecordingLength == 1 ? "" : "s"));
+        circularRecordingTextView.setText(getRecordingLength(circularRecordingLength));
+        postTriggerRecordingTextView.setText(getRecordingLength(postTriggerRecordingLength));
+    }
+
+    /**
+     * Process and pluralise the recording lengths into strings.
+     * @param length The desired length.
+     * @return The processed string.
+     */
+    private String getRecordingLength(int length) {
+        return length == 0 ? getString(R.string.settings_recording_disabled) : String.format(getString(R.string.settings_minutes_template), length, getString(length == 1 ? R.string.settings_minutes_singular : R.string.settings_minutes_plural));
     }
 
     /**

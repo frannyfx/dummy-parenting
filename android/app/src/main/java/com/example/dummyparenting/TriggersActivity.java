@@ -38,7 +38,7 @@ public class TriggersActivity extends AppCompatActivity implements OnTriggerLong
         setContentView(R.layout.triggers);
 
         // Initialise UI
-        getSupportActionBar().setTitle("Triggers");
+        getSupportActionBar().setTitle(getString(R.string.triggers_activity_title));
 
         // Setup list
         triggersList = new ArrayList(Preferences.getTriggersList(this));
@@ -84,8 +84,8 @@ public class TriggersActivity extends AppCompatActivity implements OnTriggerLong
      */
     private void showAddTriggerDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Add trigger");
-        builder.setMessage("Type in the serial number of the button you'd like to use as a trigger.");
+        builder.setTitle(getString(R.string.triggers_add_trigger_title));
+        builder.setMessage(getString(R.string.triggers_add_trigger_message));
 
         // Create input container
         FrameLayout container = new FrameLayout(this);
@@ -102,12 +102,12 @@ public class TriggersActivity extends AppCompatActivity implements OnTriggerLong
         container.addView(input);
         builder.setView(container);
 
-        builder.setPositiveButton("Add", (DialogInterface dialog, int which) -> {
+        builder.setPositiveButton(getString(R.string.triggers_add_trigger_add), (DialogInterface dialog, int which) -> {
             String trigger = input.getText().toString();
             addTrigger(trigger);
         });
 
-        builder.setNegativeButton("Cancel", (DialogInterface dialog, int which) -> {
+        builder.setNegativeButton(getString(R.string.triggers_add_trigger_cancel), (DialogInterface dialog, int which) -> {
             dialog.cancel();
         });
 
@@ -124,20 +124,20 @@ public class TriggersActivity extends AppCompatActivity implements OnTriggerLong
         // Validate trigger
         if (trigger.length() != 16) {
             new AlertDialog.Builder(this)
-                    .setTitle("Invalid trigger")
-                    .setIcon(R.drawable.ic_error_black_24dp)
-                    .setMessage("The trigger code you entered is invalid. Please check your spelling and try again.")
-                    .setPositiveButton("OK", null)
+                    .setTitle(getString(R.string.triggers_invalid_trigger_title))
+                    .setIcon(R.drawable.icon_error)
+                    .setMessage(getString(R.string.triggers_invalid_trigger_message))
+                    .setPositiveButton(getString(R.string.ok), null)
                     .show();
             return;
         }
 
         if (triggersList.contains(trigger)) {
             new AlertDialog.Builder(this)
-                    .setTitle("Duplicate trigger")
-                    .setIcon(R.drawable.ic_error_black_24dp)
-                    .setMessage("The trigger code you entered is already in the list.")
-                    .setPositiveButton("OK", null)
+                    .setTitle(getString(R.string.triggers_duplicate_trigger_title))
+                    .setIcon(R.drawable.icon_error)
+                    .setMessage(getString(R.string.triggers_duplicate_trigger_message))
+                    .setPositiveButton(getString(R.string.ok), null)
                     .show();
             return;
         }
@@ -157,14 +157,14 @@ public class TriggersActivity extends AppCompatActivity implements OnTriggerLong
     @Override
     public void onLongPress(View view, int position) {
         new AlertDialog.Builder(this)
-            .setTitle("Delete trigger")
-            .setMessage("Are you sure you like to delete this trigger?")
-            .setPositiveButton("Yes", (DialogInterface dialog, int which) -> {
+            .setTitle(getString(R.string.triggers_delete_trigger_title))
+            .setMessage(getString(R.string.triggers_delete_trigger_message))
+            .setPositiveButton(getString(R.string.triggers_delete_trigger_confirm), (DialogInterface dialog, int which) -> {
                 triggersList.remove(position);
                 Preferences.setTriggersList(this, triggersList);
                 adapter.notifyDataSetChanged();
             })
-            .setNegativeButton("No", (DialogInterface dialog, int which) -> {
+            .setNegativeButton(getString(R.string.triggers_delete_trigger_cancel), (DialogInterface dialog, int which) -> {
 
             })
             .show();

@@ -14,6 +14,6 @@ public class ScheduleActivity extends AppCompatActivity {
         setContentView(R.layout.schedule);
 
         // Initialise UI
-        getSupportActionBar().setTitle("Customise schedule");
+        getSupportActionBar().setTitle(getString(R.string.schedule_activity_title));
     }
 }

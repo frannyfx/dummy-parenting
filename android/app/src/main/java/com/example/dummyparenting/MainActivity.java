@@ -41,6 +41,9 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
 
+        // Initialise UI
+        getSupportActionBar().setTitle(getString(R.string.main_activity_title));
+
         // Setup monitor manager
         monitorManager = MonitorManager.getInstance(this);
 

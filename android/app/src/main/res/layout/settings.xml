@@ -28,17 +28,16 @@
                 android:textSize="18sp" />
 
             <TextView
-                android:id="@+id/schedule_default_state_textview"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
-                android:text="When enabled, it will enable audio collection, even when the app is closed." />
+                android:text="@string/settings_background_recording_option_description" />
 
             <Button
                 android:id="@+id/triggers_button"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Setup triggers" />
+                android:text="@string/settings_setup_triggers_button" />
         </LinearLayout>
 
         <LinearLayout
@@ -52,7 +51,7 @@
                 android:id="@+id/schedule_switch"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Scheduled recording"
+                android:text="@string/settings_scheduled_recording_option_name"
                 android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                 android:textSize="18sp" />
 
@@ -61,13 +60,13 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
-                android:text="When enabled, it will allow you to set-up a schedule so background audio will only be collected within specific time ranges." />
+                android:text="@string/settings_scheduled_recording_option_description" />
 
             <Button
                 android:id="@+id/schedule_button"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Customise schedule" />
+                android:text="@string/settings_customise_schedule_button" />
         </LinearLayout>
 
         <LinearLayout
@@ -81,7 +80,7 @@
                 android:id="@+id/textView6"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Circular recording length"
+                android:text="@string/settings_circular_recording_length_option_name"
                 android:textColor="@android:color/primary_text_light"
                 android:textSize="18sp" />
 
@@ -114,7 +113,7 @@
                 android:id="@+id/textView8"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Post-trigger recording length"
+                android:text="@string/settings_post_trigger_recording_length_option_name"
                 android:textColor="@android:color/primary_text_light"
                 android:textSize="18sp" />
 
