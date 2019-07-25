@@ -204,7 +204,7 @@ public class MonitorService extends Service {
     private void initialisePubNub() {
         // Initialise PN
         PNConfiguration pnConfiguration = new PNConfiguration();
-        pnConfiguration.setSubscribeKey("sub-c-a663fb80-ad59-11e9-a87a-b2acb6d6da6e");
+        pnConfiguration.setSubscribeKey(getString(R.string.pubnub_subscribe_key));
         pnConfiguration.setSecure(false);
 
         // Create PubNub and subscribe to channels
