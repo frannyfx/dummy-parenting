@@ -15,6 +15,10 @@
     <!-- MainActivity -->
     <string name="main_activity_title">Recordings</string>
 
+    <!-- MonitorManager -->
+    <string name="service_permissions_error_title">Permissions error</string>
+    <string name="service_permissions_error_message">You need to enable the "audio recording" and "external storage access" permissions to enable the background service.</string>
+
     <!-- MonitorService -->
     <string name="recording_notification_title_active">DummyParenting is active</string>
     <string name="recording_notification_title_inactive">DummyParenting is waiting</string>
@@ -35,6 +39,7 @@
     <string name="settings_minutes_singular">min</string>
     <string name="settings_minutes_plural">mins</string>
     <string name="settings_background_recording_option_name">Background recording</string>
+    <string name="settings_background_recording_no_permissions">Unable to start the service due to missing permissions.</string>
     <string name="settings_background_recording_option_description">When enabled, it will enable audio collection, even when the app is closed.</string>
     <string name="settings_setup_triggers_button">Setup triggers</string>
     <string name="settings_scheduled_recording_option_name">Scheduled recording</string>

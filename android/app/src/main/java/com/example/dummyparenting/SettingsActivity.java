@@ -20,6 +20,7 @@ public class SettingsActivity extends AppCompatActivity {
 
     // UI elements
     private Switch backgroundRecordingSwitch;
+    private TextView noPermissionsTextView;
     private Button triggersButton;
     private Switch scheduleSwitch;
     private TextView scheduleTextView;
@@ -48,6 +49,7 @@ public class SettingsActivity extends AppCompatActivity {
 
         // Set-up form
         backgroundRecordingSwitch = findViewById(R.id.background_recording_switch);
+        noPermissionsTextView = findViewById(R.id.background_recording_permissions_textview);
         triggersButton = findViewById(R.id.triggers_button);
         scheduleSwitch = findViewById(R.id.schedule_switch);
         scheduleTextView = findViewById(R.id.schedule_textview);
@@ -154,6 +156,11 @@ public class SettingsActivity extends AppCompatActivity {
      * conditions that they depend on.
      */
     private void toggleControlsEnabled() {
+        // Get permissions
+        boolean permissions = MonitorManager.getInstance(this).getPermissions();
+
+        backgroundRecordingSwitch.setEnabled(permissions);
+        noPermissionsTextView.setVisibility(permissions ? View.GONE : View.VISIBLE);
         scheduleSwitch.setEnabled(backgroundRecordingEnabled);
         scheduleTextView.setEnabled(backgroundRecordingEnabled);
         scheduleButton.setEnabled(backgroundRecordingEnabled && scheduleEnabled);

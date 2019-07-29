@@ -22,16 +22,11 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 public class MainActivity extends AppCompatActivity {
-    private static final int REQUEST_PERMISSIONS = 1;
+
     private static final String TAG = "main";
 
     // Service
     private MonitorManager monitorManager;
-
-    // Permissions
-    private String permissions[] =  new String[] {Manifest.permission.RECORD_AUDIO, Manifest.permission.WRITE_EXTERNAL_STORAGE};
-    private boolean audioRecordingPermission = false;
-    private boolean writeExternalStoragePermission = false;
 
     /**
      * Initialise the activity.
@@ -48,7 +43,7 @@ public class MainActivity extends AppCompatActivity {
         monitorManager = MonitorManager.getInstance(this);
 
         // Request required permissions
-        ActivityCompat.requestPermissions(this, permissions, REQUEST_PERMISSIONS);
+        ActivityCompat.requestPermissions(this, MonitorManager.permissions, MonitorManager.REQUEST_PERMISSIONS);
     }
 
     /**
@@ -95,20 +90,18 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        // Check required permissions
+        boolean audioRecordingPermission = false;
+        boolean writeExternalStoragePermission = false;
+
         switch (requestCode){
-            case REQUEST_PERMISSIONS:
+            case MonitorManager.REQUEST_PERMISSIONS:
                 audioRecordingPermission = grantResults[0] == PackageManager.PERMISSION_GRANTED;
                 writeExternalStoragePermission = grantResults[1] == PackageManager.PERMISSION_GRANTED;
                 break;
         }
 
-        // Start the service if it's enabled and we have the permissions
-        if (audioRecordingPermission && writeExternalStoragePermission)
-            if (Preferences.getBackgroundRecordingEnabled(this))
-                monitorManager.startMonitor();
-            else
-                Log.d(TAG, "Background recording disabled: not starting.");
-        else
-            Log.d(TAG, "No permissions!");
+        monitorManager.setPermissions(audioRecordingPermission, writeExternalStoragePermission);
     }
 }

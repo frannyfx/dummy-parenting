@@ -13,7 +13,7 @@
         android:orientation="vertical">
 
         <LinearLayout
-            android:id="@+id/schedule_default_state"
+            android:id="@+id/background_recording_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
@@ -26,6 +26,14 @@
                 android:text="Background recording"
                 android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                 android:textSize="18sp" />
+
+            <TextView
+                android:id="@+id/background_recording_permissions_textview"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/settings_background_recording_no_permissions"
+                android:textColor="#F44336"
+                android:textStyle="bold" />
 
             <TextView
                 android:layout_width="match_parent"
