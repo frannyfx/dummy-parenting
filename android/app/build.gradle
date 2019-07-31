@@ -35,5 +35,5 @@ dependencies {
     implementation 'androidx.cardview:cardview:1.0.0'
     implementation 'com.google.android.material:material:1.0.0'
     implementation 'org.greenrobot:eventbus:3.1.1'
-
+    implementation 'com.github.naman14:TAndroidLame:1.1'
 }
