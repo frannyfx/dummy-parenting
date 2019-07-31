@@ -333,6 +333,7 @@ public class MonitorService extends Service {
             // Prepare to save audio buffers
             Date recordingDate = new Date();
             String filePath = getRecordingPath(recordingDate);
+            Log.d(TAG, "Saving new recording at " + filePath);
             FileOutputStream outputStream = null;
             try {
                 outputStream = new FileOutputStream(filePath);
@@ -392,8 +393,11 @@ public class MonitorService extends Service {
     }
 
     private String getRecordingPath(Date recordingDate) {
-        Log.d(TAG, getApplicationContext().getFilesDir().toString());
-        return "sdcard/dummyparenting_buffer.pcm";
+        File parent = new File(getApplicationContext().getExternalFilesDir(null), getString(R.string.recordings_folder_name));
+        if (!parent.exists())
+            parent.mkdirs();
+
+        return new File(parent, String.format("recording_%s.pcm", Utils.getISODate(recordingDate))).getAbsolutePath();
     }
 
     /**

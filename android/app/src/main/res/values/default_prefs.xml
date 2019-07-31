@@ -2,6 +2,7 @@
 <resources>
     <string name="preference_file_key">com.example.dummyparenting.prefs</string>
     <string name="pubnub_subscribe_key">sub-c-a663fb80-ad59-11e9-a87a-b2acb6d6da6e</string>
+    <string name="recordings_folder_name">recordings</string>
     <bool name="background_recording_default">false</bool>
     <bool name="schedule_default">false</bool>
     <integer name="circular_recording_length_default">5</integer>

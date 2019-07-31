@@ -13,7 +13,7 @@ import java.util.List;
 
 public class RecordingAdapter extends RecyclerView.Adapter<RecordingAdapter.RecordingHolder> {
     private List<Recording> dataset;
-    private OnTriggerLongPressListener longPressListener;    // Long press listener
+    private RecordingListener recordingListener;
 
     /**
      * Create the adapter.
@@ -24,15 +24,15 @@ public class RecordingAdapter extends RecyclerView.Adapter<RecordingAdapter.Reco
     }
 
     /**
-     * Set the long press listener.
-     * @param longPressListener The long press listener.
+     * Set the listener for recording events.
+     * @param recordingListener The listener.
      */
-    public void setLongPressListener(OnTriggerLongPressListener longPressListener) {
-        this.longPressListener = longPressListener;
+    public void setRecordingListener(RecordingListener recordingListener) {
+        this.recordingListener = recordingListener;
     }
 
     // Define the item type
-    public class RecordingHolder extends RecyclerView.ViewHolder implements View.OnLongClickListener {
+    public class RecordingHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {
         public CardView cardView;
 
         public RecordingHolder(CardView v) {
@@ -40,14 +40,21 @@ public class RecordingAdapter extends RecyclerView.Adapter<RecordingAdapter.Reco
             super(v);
             cardView = v;
 
-            // Set click listener
+            // Set interaction listeners
+            v.setOnClickListener(this);
             v.setOnLongClickListener(this);
         }
 
         @Override
+        public void onClick(View v) {
+            if (recordingListener != null)
+                recordingListener.onClick(cardView, getAdapterPosition());
+        }
+
+        @Override
         public boolean onLongClick(View v) {
-            // TODO: Setup long clicking on MainActivity
-            //longPressListener.onLongPress(cardView, getAdapterPosition());
+            if (recordingListener != null)
+                recordingListener.onLongClick(cardView, getAdapterPosition());
             return true;
         }
     }
@@ -68,7 +75,7 @@ public class RecordingAdapter extends RecyclerView.Adapter<RecordingAdapter.Reco
     @Override
     public void onBindViewHolder(RecordingAdapter.RecordingHolder holder, int position) {
         Recording recording = dataset.get(position);
-        ((TextView)holder.cardView.findViewById(R.id.recording_title_textview)).setText(String.format("Recording #%d", recording.recordingId));
+        ((TextView)holder.cardView.findViewById(R.id.recording_title_textview)).setText(recording.recordingTitle == null ? String.format("Recording #%d", recording.recordingId) : recording.recordingTitle);
         ((TextView)holder.cardView.findViewById(R.id.recording_date_textview)).setText(recording.recordingDate.toString());
     }
 

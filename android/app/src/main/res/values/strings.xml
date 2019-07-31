@@ -14,6 +14,7 @@
 
     <!-- MainActivity -->
     <string name="main_activity_title">Recordings</string>
+    <string name="recordings_empty_dataset">No recordings</string>
 
     <!-- RecordingListItem -->
     <string name="recording_list_item_title">recording_title</string>
@@ -66,4 +67,5 @@
     <string name="triggers_delete_trigger_message">Are you sure you like to delete this trigger?</string>
     <string name="triggers_delete_trigger_confirm">Yes</string>
     <string name="triggers_delete_trigger_cancel">No</string>
+    <string name="triggers_empty_dataset">No triggers</string>
 </resources>
