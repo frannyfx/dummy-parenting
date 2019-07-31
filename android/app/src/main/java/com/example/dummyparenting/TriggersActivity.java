@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.FrameLayout;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -26,8 +27,11 @@ public class TriggersActivity extends AppCompatActivity implements OnTriggerLong
     // Triggers list
     private List<String> triggersList;
     private RecyclerView recyclerView;
-    private TriggersAdapter adapter;
+    private TriggerAdapter adapter;
     private RecyclerView.LayoutManager layoutManager;
+
+    // UI
+    private TextView emptyDatasetTextView;
 
     /**
      * Initialise the activity.
@@ -39,16 +43,19 @@ public class TriggersActivity extends AppCompatActivity implements OnTriggerLong
 
         // Initialise UI
         getSupportActionBar().setTitle(getString(R.string.triggers_activity_title));
+        emptyDatasetTextView = findViewById(R.id.triggers_empty_dataset_textview);
+        recyclerView = findViewById(R.id.triggers_list);
 
         // Setup list
         triggersList = new ArrayList(Preferences.getTriggersList(this));
-        adapter = new TriggersAdapter(triggersList);
-
-        recyclerView = (RecyclerView) findViewById(R.id.triggers_list);
+        adapter = new TriggerAdapter(triggersList);
         layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
         adapter.setLongPressListener(this);
         recyclerView.setAdapter(adapter);
+
+        // Update visibility
+        updateDatasetEmpty();
     }
 
     /**
@@ -147,6 +154,7 @@ public class TriggersActivity extends AppCompatActivity implements OnTriggerLong
         triggersList.add(trigger);
         Preferences.setTriggersList(this, triggersList);
         adapter.notifyDataSetChanged();
+        updateDatasetEmpty();
     }
 
     /**
@@ -163,10 +171,16 @@ public class TriggersActivity extends AppCompatActivity implements OnTriggerLong
                 triggersList.remove(position);
                 Preferences.setTriggersList(this, triggersList);
                 adapter.notifyDataSetChanged();
+                updateDatasetEmpty();
             })
             .setNegativeButton(getString(R.string.triggers_delete_trigger_cancel), (DialogInterface dialog, int which) -> {
 
             })
             .show();
+    }
+
+    private void updateDatasetEmpty() {
+        emptyDatasetTextView.setVisibility(triggersList.size() == 0 ? View.VISIBLE : View.GONE);
+        recyclerView.setVisibility(triggersList.size() == 0 ? View.GONE : View.VISIBLE);
     }
 }

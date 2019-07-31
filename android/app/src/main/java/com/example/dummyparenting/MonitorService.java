@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
+import android.os.Environment;
 import android.os.IBinder;
 import android.util.Log;
 
@@ -26,9 +27,11 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 public class MonitorService extends Service {
@@ -331,12 +334,14 @@ public class MonitorService extends Service {
             // Again, prevent stalling if recording was disabled.
             if (!isRecording)
                 break;
+          
+            // Generate file name
+            Date recordingDate = new Date();
+            String filePath = getRecordingPath(recordingDate);
+            Log.d(TAG, "Saving new recording at " + filePath);
 
             // Create the encoder
             Encoder encoder = new Encoder(sampleRate, 2, 256, sampleRate, shortChunkSize);
-
-            // Prepare to save audio buffers
-            String filePath = "/sdcard/blem.mp3";
             encoder.start(filePath);
 
             // Check if we have to save the circular buffer
@@ -376,6 +381,14 @@ public class MonitorService extends Service {
         recorder.release();
         recorder = null;
         recordingThread = null;
+    }
+
+    private String getRecordingPath(Date recordingDate) {
+        File parent = new File(getApplicationContext().getExternalFilesDir(null), getString(R.string.recordings_folder_name));
+        if (!parent.exists())
+            parent.mkdirs();
+
+        return new File(parent, String.format("recording_%s.pcm", Utils.getISODate(recordingDate))).getAbsolutePath();
     }
 
     /**

@@ -9,7 +9,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".MainActivity">
+        <activity android:name=".MainActivity" android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -24,6 +24,9 @@
         <activity android:name=".TriggersActivity" android:parentActivityName=".SettingsActivity">
             <meta-data android:name="android.support.PARENT_ACTIVITY" android:value=".SettingsActivity" />
         </activity>
+        <activity android:name=".PlayerActivity" android:parentActivityName=".MainActivity">
+            <meta-data android:name="android.support.PARENT_ACTIVITY" android:value=".MainActivity" />
+        </activity>
         <service android:name=".MonitorService" />
     </application>
     <uses-permission android:name="android.permission.BLUETOOTH" />
@@ -31,6 +34,7 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.RECORD_AUDIO"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.STORAGE"/>
     <uses-permission android:name="android.permission.INTERNET"/>
 </manifest>

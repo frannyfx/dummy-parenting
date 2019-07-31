@@ -14,19 +14,35 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.Switch;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.lifecycle.Observer;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
-public class MainActivity extends AppCompatActivity {
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
+public class MainActivity extends AppCompatActivity implements RecordingListener {
     private static final String TAG = "main";
+
+    // Recordings
+    List<Recording> recordingsList;
+    private RecyclerView recyclerView;
+    private RecordingAdapter adapter;
+    private RecyclerView.LayoutManager layoutManager;
 
     // Service
     private MonitorManager monitorManager;
+
+    // UI
+    private TextView emptyDatasetTextView;
 
     /**
      * Initialise the activity.
@@ -38,12 +54,41 @@ public class MainActivity extends AppCompatActivity {
 
         // Initialise UI
         getSupportActionBar().setTitle(getString(R.string.main_activity_title));
+        emptyDatasetTextView = findViewById(R.id.recordings_empty_dataset);
+        recyclerView = findViewById(R.id.recordings_list);
+
+        // Initialise list
+        recordingsList = new ArrayList<>();
+        adapter = new RecordingAdapter(recordingsList);
+        adapter.setRecordingListener(this);
+        layoutManager = new LinearLayoutManager(this);
+        recyclerView.setLayoutManager(layoutManager);
+        recyclerView.setAdapter(adapter);
+
+        // Get recordings
+        setupDatabase();
 
         // Setup monitor manager
         monitorManager = MonitorManager.getInstance(this);
 
         // Request required permissions
         ActivityCompat.requestPermissions(this, MonitorManager.permissions, MonitorManager.REQUEST_PERMISSIONS);
+    }
+
+    private void setupDatabase() {
+        // Asynchronously update the list
+        AppDatabase.getInstance(getApplicationContext()).recordingDao().getByDate().observe(this, new Observer<List<Recording>>() {
+            @Override
+            public void onChanged(List<Recording> recordings) {
+                Log.d(TAG, String.format("Loaded %d recordings.", recordings.size()));
+                recordingsList.clear();
+                recordingsList.addAll(recordings);
+                adapter.notifyDataSetChanged();
+
+                // Update visibility
+                updateDatasetEmpty();
+            }
+        });
     }
 
     /**
@@ -103,5 +148,29 @@ public class MainActivity extends AppCompatActivity {
         }
 
         monitorManager.setPermissions(audioRecordingPermission, writeExternalStoragePermission);
+    }
+
+    @Override
+    public void onClick(View cardView, int position) {
+        // Start activity with this specific recording
+        Recording selectedRecording = recordingsList.get(position);
+        Log.d(TAG, String.format("Recording #%d clicked - Path: '%s'.", selectedRecording.recordingId, selectedRecording.filePath));
+
+        // Open settings activity
+        Intent intent = new Intent(MainActivity.this, PlayerActivity.class);
+        intent.putExtra(getString(R.string.player_intent_extra_recording), recordingsList.get(position));
+        MainActivity.this.startActivity(intent);
+    }
+
+    @Override
+    public void onLongClick(View cardView, int position) {
+        // Show dialog asking to delete
+        Recording selectedRecording = recordingsList.get(position);
+        Log.d(TAG, String.format("Attempting to delete recording #%d.", selectedRecording.recordingId));
+    }
+
+    private void updateDatasetEmpty() {
+        emptyDatasetTextView.setVisibility(recordingsList.size() == 0 ? View.VISIBLE : View.GONE);
+        recyclerView.setVisibility(recordingsList.size() == 0 ? View.GONE : View.VISIBLE);
     }
 }
