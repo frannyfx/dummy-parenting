@@ -10,7 +10,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
 
-public class TriggersAdapter extends RecyclerView.Adapter<TriggersAdapter.TriggerHolder> {
+public class TriggerAdapter extends RecyclerView.Adapter<TriggerAdapter.TriggerHolder> {
     private List<String> dataset;
     private OnTriggerLongPressListener longPressListener;    // Long press listener
 
@@ -18,7 +18,7 @@ public class TriggersAdapter extends RecyclerView.Adapter<TriggersAdapter.Trigge
      * Create the adapter.
      * @param triggers The dataset of triggers.
      */
-    public TriggersAdapter(List<String> triggers) {
+    public TriggerAdapter(List<String> triggers) {
         dataset = triggers;
     }
 
@@ -52,8 +52,8 @@ public class TriggersAdapter extends RecyclerView.Adapter<TriggersAdapter.Trigge
 
     // Create new views (invoked by the layout manager)
     @Override
-    public TriggersAdapter.TriggerHolder onCreateViewHolder(ViewGroup parent,
-                                                          int viewType) {
+    public TriggerAdapter.TriggerHolder onCreateViewHolder(ViewGroup parent,
+                                                           int viewType) {
         // create a new view
         CardView v = (CardView) LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.trigger_list_item, parent, false);

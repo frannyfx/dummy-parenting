@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
+import android.os.Environment;
 import android.os.IBinder;
 import android.util.Log;
 
@@ -24,9 +25,11 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 public class MonitorService extends Service {
@@ -328,7 +331,8 @@ public class MonitorService extends Service {
                 break;
 
             // Prepare to save audio buffers
-            String filePath = "/sdcard/dummyparenting_buffer.pcm";
+            Date recordingDate = new Date();
+            String filePath = getRecordingPath(recordingDate);
             FileOutputStream outputStream = null;
             try {
                 outputStream = new FileOutputStream(filePath);
@@ -345,7 +349,8 @@ public class MonitorService extends Service {
                 Log.d(TAG, String.format("Recording %d seconds of chunked post-trigger audio...", postTriggerRecordingLength * 60));
 
                 // Begin recording post-trigger audio...
-                int numSamples = sampleRate * numChannels * postTriggerRecordingLength * 60;
+                //int numSamples = sampleRate * numChannels * postTriggerRecordingLength * 60;
+                int numSamples = sampleRate * numChannels * 5;
                 int samplesRecorded = 0;
 
                 while (isRecording && samplesRecorded < numSamples) {
@@ -359,9 +364,14 @@ public class MonitorService extends Service {
                     outputStream.write(postTriggerBytes);
                 }
 
-
                 // Close audio buffer.
                 outputStream.close();
+
+                // Save recording to DB
+                if (isRecording) {
+                    AppDatabase.getInstance(getApplicationContext()).recordingDao().insertAll(new Recording(circularRecordingLength + postTriggerRecordingLength * 60, new Date(), filePath));
+                }
+
             } catch (Exception e) {
                 // If any part of the process goes wrong, prevent crashing and log it.
                 Log.d(TAG, "Unable to save audio buffers.");
@@ -379,6 +389,11 @@ public class MonitorService extends Service {
         recorder.release();
         recorder = null;
         recordingThread = null;
+    }
+
+    private String getRecordingPath(Date recordingDate) {
+        Log.d(TAG, getApplicationContext().getFilesDir().toString());
+        return "sdcard/dummyparenting_buffer.pcm";
     }
 
     /**

@@ -20,10 +20,23 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.lifecycle.Observer;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "main";
+
+    // Recordings
+    List<Recording> recordingsList;
+    private RecyclerView recyclerView;
+    private RecordingAdapter adapter;
+    private RecyclerView.LayoutManager layoutManager;
 
     // Service
     private MonitorManager monitorManager;
@@ -39,11 +52,35 @@ public class MainActivity extends AppCompatActivity {
         // Initialise UI
         getSupportActionBar().setTitle(getString(R.string.main_activity_title));
 
+        // Initialise list
+        recordingsList = new ArrayList<>();
+        recyclerView = findViewById(R.id.recordings_list);
+        adapter = new RecordingAdapter(recordingsList);
+        layoutManager = new LinearLayoutManager(this);
+        recyclerView.setLayoutManager(layoutManager);
+        recyclerView.setAdapter(adapter);
+
+        // Get recordings
+        setupDatabase();
+
         // Setup monitor manager
         monitorManager = MonitorManager.getInstance(this);
 
         // Request required permissions
         ActivityCompat.requestPermissions(this, MonitorManager.permissions, MonitorManager.REQUEST_PERMISSIONS);
+    }
+
+    private void setupDatabase() {
+        // Asynchronously update the list
+        AppDatabase.getInstance(getApplicationContext()).recordingDao().getByDate().observe(this, new Observer<List<Recording>>() {
+            @Override
+            public void onChanged(List<Recording> recordings) {
+                Log.d(TAG, String.format("Loaded %d recordings.", recordings.size()));
+                recordingsList.clear();
+                recordingsList.addAll(recordings);
+                adapter.notifyDataSetChanged();
+            }
+        });
     }
 
     /**

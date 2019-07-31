@@ -15,6 +15,10 @@
     <!-- MainActivity -->
     <string name="main_activity_title">Recordings</string>
 
+    <!-- RecordingListItem -->
+    <string name="recording_list_item_title">recording_title</string>
+    <string name="recording_list_item_date">YYYY-MM-DD HH:ss</string>
+
     <!-- MonitorManager -->
     <string name="service_permissions_error_title">Permissions error</string>
     <string name="service_permissions_error_message">You need to enable the "audio recording" and "external storage access" permissions to enable the background service.</string>

@@ -3,6 +3,8 @@ package com.example.dummyparenting;
 import android.app.ActivityManager;
 import android.content.Context;
 
+import androidx.room.Room;
+
 public class Utils {
     /**
      * Check whether a specific service is currently running.

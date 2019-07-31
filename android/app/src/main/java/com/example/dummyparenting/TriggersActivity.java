@@ -26,7 +26,7 @@ public class TriggersActivity extends AppCompatActivity implements OnTriggerLong
     // Triggers list
     private List<String> triggersList;
     private RecyclerView recyclerView;
-    private TriggersAdapter adapter;
+    private TriggerAdapter adapter;
     private RecyclerView.LayoutManager layoutManager;
 
     /**
@@ -42,7 +42,7 @@ public class TriggersActivity extends AppCompatActivity implements OnTriggerLong
 
         // Setup list
         triggersList = new ArrayList(Preferences.getTriggersList(this));
-        adapter = new TriggersAdapter(triggersList);
+        adapter = new TriggerAdapter(triggersList);
 
         recyclerView = (RecyclerView) findViewById(R.id.triggers_list);
         layoutManager = new LinearLayoutManager(this);
