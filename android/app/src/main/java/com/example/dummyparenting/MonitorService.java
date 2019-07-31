@@ -14,6 +14,8 @@ import android.util.Log;
 
 import androidx.annotation.Nullable;
 
+import com.naman14.androidlame.AndroidLame;
+import com.naman14.androidlame.LameBuilder;
 import com.pubnub.api.PNConfiguration;
 import com.pubnub.api.PubNub;
 import com.pubnub.api.callbacks.SubscribeCallback;
@@ -54,7 +56,7 @@ public class MonitorService extends Service {
     private boolean isRecording = false;
     private boolean isTriggered = false;
 
-    private int shortChunkSize = 1024;
+    private int shortChunkSize;
     private int sampleRate = 44100;
     private int numChannels = 2;
 
@@ -158,9 +160,12 @@ public class MonitorService extends Service {
         if (isRecording)
             return;
 
+        // Calculate short chunk size
+        shortChunkSize = AudioRecord.getMinBufferSize(sampleRate, AudioFormat.CHANNEL_IN_STEREO, AudioFormat.ENCODING_PCM_16BIT);
+
         // Set recording flag to true and start the thread.
         isRecording = true;
-        recorder = new AudioRecord(MediaRecorder.AudioSource.MIC, sampleRate, AudioFormat.CHANNEL_IN_STEREO, AudioFormat.ENCODING_PCM_16BIT, shortChunkSize * numChannels);
+        recorder = new AudioRecord(MediaRecorder.AudioSource.MIC, sampleRate, AudioFormat.CHANNEL_IN_STEREO, AudioFormat.ENCODING_PCM_16BIT, shortChunkSize);
         recorder.startRecording();
         recordingThread = new Thread(new Runnable() {
             public void run() {
@@ -329,55 +334,41 @@ public class MonitorService extends Service {
             // Again, prevent stalling if recording was disabled.
             if (!isRecording)
                 break;
-
-            // Prepare to save audio buffers
+          
+            // Generate file name
             Date recordingDate = new Date();
             String filePath = getRecordingPath(recordingDate);
             Log.d(TAG, "Saving new recording at " + filePath);
-            FileOutputStream outputStream = null;
-            try {
-                outputStream = new FileOutputStream(filePath);
 
-                // Save already recorded circular buffer
-                if (circularBuffer != null) {
-                    Log.d(TAG, String.format("Recorded %d seconds of circular buffer.", circularBuffer.length / sampleRate / numChannels));
+            // Create the encoder
+            Encoder encoder = new Encoder(sampleRate, 2, 256, sampleRate, shortChunkSize);
+            encoder.start(filePath);
 
-                    byte circularBytes[] = short2byte(circularBuffer);
-                    outputStream.write(circularBytes);
-                } else
-                    Log.d(TAG, "No circular buffer to save.");
+            // Check if we have to save the circular buffer
+            if (circularBuffer != null) {
+                Log.d(TAG, String.format("Recorded %d seconds of circular buffer.", circularBuffer.length / sampleRate));
+                encoder.queueBuffer(circularBuffer);
+            } else
+                Log.d(TAG, "No circular buffer to save.");
 
-                Log.d(TAG, String.format("Recording %d seconds of chunked post-trigger audio...", postTriggerRecordingLength * 60));
+            Log.d(TAG, String.format("Recording %d seconds of chunked post-trigger audio...", postTriggerRecordingLength * 60));
 
-                // Begin recording post-trigger audio...
-                //int numSamples = sampleRate * numChannels * postTriggerRecordingLength * 60;
-                int numSamples = sampleRate * numChannels * 5;
-                int samplesRecorded = 0;
+            // Begin recording post-trigger audio...
+            int numSamples = sampleRate * numChannels * postTriggerRecordingLength * 60;
+            int samplesRecorded = 0;
 
-                while (isRecording && samplesRecorded < numSamples) {
-                    // Write audio data in chunks
-                    short postTriggerData[] = new short[shortChunkSize];
-                    int count = recorder.read(postTriggerData, 0, shortChunkSize);
-                    samplesRecorded += count;
+            while (isRecording && samplesRecorded < numSamples) {
+                // Write audio data in chunks
+                short postTriggerData[] = new short[shortChunkSize];
+                int count = recorder.read(postTriggerData, 0, shortChunkSize);
+                samplesRecorded += count;
 
-                    // Convert to bytes
-                    byte postTriggerBytes[] = short2byte(postTriggerData);
-                    outputStream.write(postTriggerBytes);
-                }
-
-                // Close audio buffer.
-                outputStream.close();
-
-                // Save recording to DB
-                if (isRecording) {
-                    AppDatabase.getInstance(getApplicationContext()).recordingDao().insertAll(new Recording(circularRecordingLength + postTriggerRecordingLength * 60, new Date(), filePath));
-                }
-
-            } catch (Exception e) {
-                // If any part of the process goes wrong, prevent crashing and log it.
-                Log.d(TAG, "Unable to save audio buffers.");
-                e.printStackTrace();
+                // Encode the chunk
+                encoder.queueBuffer(postTriggerData);
             }
+
+            // Stop encoder
+            encoder.finish();
 
             // Set triggered flag back to false
             Log.d(TAG, "Done recording!");
