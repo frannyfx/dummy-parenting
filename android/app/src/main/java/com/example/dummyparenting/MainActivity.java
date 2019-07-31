@@ -30,7 +30,6 @@ import java.util.Date;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements RecordingListener {
-
     private static final String TAG = "main";
 
     // Recordings
@@ -156,6 +155,11 @@ public class MainActivity extends AppCompatActivity implements RecordingListener
         // Start activity with this specific recording
         Recording selectedRecording = recordingsList.get(position);
         Log.d(TAG, String.format("Recording #%d clicked - Path: '%s'.", selectedRecording.recordingId, selectedRecording.filePath));
+
+        // Open settings activity
+        Intent intent = new Intent(MainActivity.this, PlayerActivity.class);
+        intent.putExtra(getString(R.string.player_intent_extra_recording), recordingsList.get(position));
+        MainActivity.this.startActivity(intent);
     }
 
     @Override

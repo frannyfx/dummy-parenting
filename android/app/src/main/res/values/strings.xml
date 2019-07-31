@@ -15,6 +15,7 @@
     <!-- MainActivity -->
     <string name="main_activity_title">Recordings</string>
     <string name="recordings_empty_dataset">No recordings</string>
+    <string name="player_intent_extra_recording">recording</string>
 
     <!-- RecordingListItem -->
     <string name="recording_list_item_title">recording_title</string>

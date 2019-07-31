@@ -5,10 +5,11 @@ import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 import androidx.room.TypeConverters;
 
+import java.io.Serializable;
 import java.util.Date;
 
 @Entity
-public class Recording {
+public class Recording implements Serializable {
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "recording_id")
     public int recordingId;
