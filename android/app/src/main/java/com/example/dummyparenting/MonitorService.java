@@ -346,7 +346,7 @@ public class MonitorService extends Service {
 
             // Check if we have to save the circular buffer
             if (circularBuffer != null) {
-                Log.d(TAG, String.format("Recorded %d seconds of circular buffer.", circularBuffer.length / sampleRate));
+                Log.d(TAG, String.format("Recorded %d seconds of circular buffer.", circularBuffer.length / numChannels / sampleRate));
                 encoder.queueBuffer(circularBuffer);
             } else
                 Log.d(TAG, "No circular buffer to save.");
@@ -365,6 +365,11 @@ public class MonitorService extends Service {
 
                 // Encode the chunk
                 encoder.queueBuffer(postTriggerData);
+            }
+
+            // Save recording to DB
+            if (isRecording) {
+                AppDatabase.getInstance(getApplicationContext()).recordingDao().insertAll(new Recording((circularRecordingLength + postTriggerRecordingLength) * 60, new Date(), filePath));
             }
 
             // Stop encoder
@@ -388,7 +393,7 @@ public class MonitorService extends Service {
         if (!parent.exists())
             parent.mkdirs();
 
-        return new File(parent, String.format("recording_%s.pcm", Utils.getISODate(recordingDate))).getAbsolutePath();
+        return new File(parent, String.format("recording_%s.mp3", Utils.getISODate(recordingDate).replace(':', '-'))).getAbsolutePath();
     }
 
     /**
