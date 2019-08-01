@@ -33,10 +33,11 @@ public class MainActivity extends AppCompatActivity implements RecordingListener
     private static final String TAG = "main";
 
     // Recordings
-    List<Recording> recordingsList;
+    private List<Recording> recordingsList;
     private RecyclerView recyclerView;
     private RecordingAdapter adapter;
     private RecyclerView.LayoutManager layoutManager;
+    private Player player = Player.getInstance();
 
     // Service
     private MonitorManager monitorManager;
@@ -156,9 +157,11 @@ public class MainActivity extends AppCompatActivity implements RecordingListener
         Recording selectedRecording = recordingsList.get(position);
         Log.d(TAG, String.format("Recording #%d clicked - Path: '%s'.", selectedRecording.recordingId, selectedRecording.filePath));
 
-        // Open settings activity
+        player.setSelectedRecording(selectedRecording);
+        player.setup(true);
+
+        // Open player activity
         Intent intent = new Intent(MainActivity.this, PlayerActivity.class);
-        intent.putExtra(getString(R.string.player_intent_extra_recording), recordingsList.get(position));
         MainActivity.this.startActivity(intent);
     }
 

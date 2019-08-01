@@ -369,7 +369,9 @@ public class MonitorService extends Service {
 
             // Save recording to DB
             if (isRecording) {
-                AppDatabase.getInstance(getApplicationContext()).recordingDao().insertAll(new Recording((circularRecordingLength + postTriggerRecordingLength) * 60, new Date(), filePath));
+                int totalRecordingLength = (circularBuffer.length / numChannels / sampleRate) + (postTriggerRecordingLength * 60);
+                Log.d(TAG, String.format("Total length in seconds: %d", totalRecordingLength));
+                AppDatabase.getInstance(getApplicationContext()).recordingDao().insertAll(new Recording(totalRecordingLength, new Date(), filePath));
             }
 
             // Stop encoder
