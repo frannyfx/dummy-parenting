@@ -8,14 +8,11 @@ import android.content.Intent;
 import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
-import android.os.Environment;
 import android.os.IBinder;
 import android.util.Log;
 
 import androidx.annotation.Nullable;
 
-import com.naman14.androidlame.AndroidLame;
-import com.naman14.androidlame.LameBuilder;
 import com.pubnub.api.PNConfiguration;
 import com.pubnub.api.PubNub;
 import com.pubnub.api.callbacks.SubscribeCallback;
@@ -28,13 +25,12 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-public class MonitorService extends Service {
+public class MonitorService extends Service implements ConnectivityChangeListener {
     public static final String CHANNEL_ID = "MonitorServiceChannel";
     private static final String TAG = "dummy_monitor";
 
@@ -61,8 +57,10 @@ public class MonitorService extends Service {
     private int numChannels = 2;
 
     // PubNub
+    private boolean connected = false;
     private PubNub pn;
     private List<String> subscribedChannels;
+    private ConnectivityChangeDetector connectivityChangeDetector;
 
     @Override
     public void onCreate() {
@@ -82,6 +80,10 @@ public class MonitorService extends Service {
         // Initialise
         initialisePubNub();
         startMonitoring();
+
+        // Listen to network changes
+        connectivityChangeDetector = new ConnectivityChangeDetector(this);
+        connectivityChangeDetector.setConnectivityChangeListener(this);
 
         // Show notification
         startForeground(1, getNotification());
@@ -207,7 +209,7 @@ public class MonitorService extends Service {
     }
 
     /**
-     * Initialise PubNub to we can receive trigger events.
+     * Initialise PubNub so we can receive trigger events.
      */
     private void initialisePubNub() {
         // Initialise PN
@@ -228,33 +230,22 @@ public class MonitorService extends Service {
                     case PNUnsubscribeOperation:
                         switch (status.getCategory()) {
                             case PNConnectedCategory:
-                                Log.d(TAG, "PN connected successfully!");
-                                break;
-                            case PNReconnectedCategory:
-                                Log.d(TAG, "PN reconnected!");
+                                Log.d(TAG, "PubNub is connected.");
+                                connected = true;
                                 break;
                             case PNDisconnectedCategory:
-                                Log.d(TAG, "PN disconnected.");
+                                Log.d(TAG, "PubNub is disconnected.");
+                                connected = false;
                                 break;
                             case PNUnexpectedDisconnectCategory:
-                                Log.d(TAG, "PN unexpected disconnection.");
+                                Log.d(TAG, "PubNub lost connection unexpectedly.");
+                                connected = false;
                                 break;
                             case PNAccessDeniedCategory:
-                                Log.d(TAG, "PN access denied.");
+                                Log.d(TAG, "PubNub was denied access.");
+                                connected = false;
                                 break;
                         }
-
-                    case PNHeartbeatOperation:
-                        if (status.isError()) {
-                            // There was an error with the heartbeat operation, handle here
-                            Log.d(TAG, "PN heartbeat error!");
-                        } else {
-                            // heartbeat operation was successful
-                        }
-                        break;
-                    default: {
-                        // Encountered unknown status type
-                    }
                 }
             }
 
@@ -266,9 +257,7 @@ public class MonitorService extends Service {
             }
 
             @Override
-            public void presence(PubNub pubnub, PNPresenceEventResult presence) {
-
-            }
+            public void presence(PubNub pubnub, PNPresenceEventResult presence) {}
         });
     }
 
@@ -286,22 +275,6 @@ public class MonitorService extends Service {
         subscribedChannels = new ArrayList<String>(Preferences.getTriggersList(this));
         pn.subscribe().channels(subscribedChannels.size() == 0 ? Arrays.asList("trigger_test") : subscribedChannels).execute();
         Log.d(TAG, String.format("PubNub subscribed to %d trigger channel%s.", subscribedChannels.size(), subscribedChannels.size() == 1 ? "" : "s"));
-    }
-
-    /**
-     * Convert an short array to a byte array.
-     * @param sData The short array.
-     * @return The byte array.
-     */
-    private byte[] short2byte(short[] sData) {
-        int shortArrsize = sData.length;
-        byte[] bytes = new byte[shortArrsize * 2];
-        for (int i = 0; i < shortArrsize; i++) {
-            bytes[i * 2] = (byte) (sData[i] & 0x00FF);
-            bytes[(i * 2) + 1] = (byte) (sData[i] >> 8);
-            sData[i] = 0;
-        }
-        return bytes;
     }
 
     /**
@@ -456,6 +429,11 @@ public class MonitorService extends Service {
         }
 
         return rearrangedBuffer;
+    }
+
+    public void onConnectivityChanged(boolean state) {
+        if (state && !connected)
+            initialisePubNub();
     }
 
     /**

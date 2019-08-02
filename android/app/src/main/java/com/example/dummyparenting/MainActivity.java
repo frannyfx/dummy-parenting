@@ -29,8 +29,12 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements RecordingListener {
+public class MainActivity extends AppCompatActivity implements RecordingListener, YNDialogResultListener {
     private static final String TAG = "main";
+    private static final int DELETE_RECORDING_DIALOG_ID = 0;
+
+    // Deleting
+    private int deletionPosition = -1;
 
     // Recordings
     private List<Recording> recordingsList;
@@ -167,9 +171,35 @@ public class MainActivity extends AppCompatActivity implements RecordingListener
 
     @Override
     public void onLongClick(View cardView, int position) {
-        // Show dialog asking to delete
+        // Get the recording to be deleted and save the position fo when the dialog 'returns'.
         Recording selectedRecording = recordingsList.get(position);
+        deletionPosition = position;
         Log.d(TAG, String.format("Attempting to delete recording #%d.", selectedRecording.recordingId));
+
+        // Show the dialog
+        Utils.showYNDialog(
+                this,
+                this,
+                DELETE_RECORDING_DIALOG_ID,
+                getString(R.string.main_delete_recording_title),
+                String.format(getString(R.string.main_delete_recording_message), selectedRecording.getTitle()),
+                getString(R.string.main_delete_recording_confirm),
+                getString(R.string.main_delete_recording_cancel)
+        );
+    }
+
+    @Override
+    public void onYNDialogResult(int dialogId, boolean result) {
+        if (dialogId == DELETE_RECORDING_DIALOG_ID) {
+            if (result) {
+                Recording selectedRecording = recordingsList.get(deletionPosition);
+                Utils.runInBackground(() -> {
+                    AppDatabase.getInstance(this).recordingDao().deleteWithFile(selectedRecording);
+                });
+            }
+
+            deletionPosition = -1;
+        }
     }
 
     private void updateDatasetEmpty() {

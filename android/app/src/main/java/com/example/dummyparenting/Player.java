@@ -4,7 +4,7 @@ import android.content.Context;
 import android.media.MediaPlayer;
 import android.util.Log;
 
-public class Player implements MediaPlayer.OnPreparedListener {
+public class Player implements MediaPlayer.OnPreparedListener, MediaPlayer.OnCompletionListener {
     private static Player instance;
     private static final String TAG = "player";
 
@@ -14,6 +14,7 @@ public class Player implements MediaPlayer.OnPreparedListener {
 
     private boolean ready = false;
     private boolean playWhenReady = false;
+    private PlayerListener playerListener;
 
     private Player() {
 
@@ -40,6 +41,10 @@ public class Player implements MediaPlayer.OnPreparedListener {
         // Create new player
         selectedRecording = recording;
         ready = false;
+    }
+
+    public void setPlayerListener(PlayerListener playerListener) {
+        this.playerListener = playerListener;
     }
 
     /**
@@ -83,10 +88,22 @@ public class Player implements MediaPlayer.OnPreparedListener {
             play();
     }
 
+    @Override
+    public void onCompletion(MediaPlayer player) {
+        handlePlayerStateChange();
+    }
+
+    public void handlePlayerStateChange() {
+        if (playerListener != null) {
+            Log.d(TAG, "Handling player state change...");
+            playerListener.onPlayerStateChanged();
+        }
+    }
+
     /**
      * Start playback of the recording.
      */
-    public void play() {
+     public void play() {
         if (!ready || mediaPlayer == null || selectedRecording == null) {
             Log.d(TAG, "Not ready to play!");
             return;
@@ -94,6 +111,7 @@ public class Player implements MediaPlayer.OnPreparedListener {
 
         Log.d(TAG, String.format("Playing recording at '%s'", selectedRecording.filePath));
         mediaPlayer.start();
+        handlePlayerStateChange();
     }
 
     public void pause() {
@@ -101,6 +119,17 @@ public class Player implements MediaPlayer.OnPreparedListener {
             return;
 
         mediaPlayer.pause();
+        handlePlayerStateChange();
+    }
+
+    public void playPause() {
+        if (!ready || mediaPlayer == null || selectedRecording == null)
+            return;
+
+        if (mediaPlayer.isPlaying())
+            pause();
+        else
+            play();
     }
 
     /**
@@ -111,10 +140,18 @@ public class Player implements MediaPlayer.OnPreparedListener {
         return selectedRecording;
     }
 
+    /**
+     * Accessor method for whether the media player is currently playing.
+     * @return
+     */
     public boolean isPlaying() {
         return mediaPlayer != null && mediaPlayer.isPlaying();
     }
 
+    /**
+     * Get the fraction of playback progress.
+     * @return
+     */
     public float getProgress() {
         // Progress is zero if we haven't yet loaded anything
         if (mediaPlayer == null || selectedRecording == null || !ready)
@@ -123,10 +160,25 @@ public class Player implements MediaPlayer.OnPreparedListener {
         return (float)mediaPlayer.getCurrentPosition() / (float)mediaPlayer.getDuration();
     }
 
+    /**
+     * Set progress (seek).
+     * @param progress The fraction the media player should seek to.
+     */
     public void setProgress(float progress) {
         if (mediaPlayer == null || selectedRecording == null || !ready)
             return;
 
         mediaPlayer.seekTo((int)(progress * mediaPlayer.getDuration()));
+    }
+
+    /**
+     * Get the current position in the track in seconds.
+     * @return The current playback position in seconds.
+     */
+    public int getCurrentPosition() {
+        if (mediaPlayer == null || selectedRecording == null || !ready)
+            return 0;
+
+        return mediaPlayer.getCurrentPosition();
     }
 }

@@ -75,8 +75,8 @@ public class RecordingAdapter extends RecyclerView.Adapter<RecordingAdapter.Reco
     @Override
     public void onBindViewHolder(RecordingAdapter.RecordingHolder holder, int position) {
         Recording recording = dataset.get(position);
-        ((TextView)holder.cardView.findViewById(R.id.recording_title_textview)).setText(recording.recordingTitle == null ? String.format("Recording #%d", recording.recordingId) : recording.recordingTitle);
-        ((TextView)holder.cardView.findViewById(R.id.recording_date_textview)).setText(recording.recordingDate.toString());
+        ((TextView)holder.cardView.findViewById(R.id.recording_title_textview)).setText(recording.getTitle());
+        ((TextView)holder.cardView.findViewById(R.id.recording_date_textview)).setText(Utils.getNiceDate(recording.recordingDate));
     }
 
     // Return the size of your dataset (invoked by the layout manager)

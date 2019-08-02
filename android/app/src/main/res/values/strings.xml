@@ -16,6 +16,10 @@
     <string name="main_activity_title">Recordings</string>
     <string name="recordings_empty_dataset">No recordings</string>
     <string name="player_intent_extra_recording">recording</string>
+    <string name="main_delete_recording_title">Delete recording</string>
+    <string name="main_delete_recording_message">Are you sure you\'d like to delete "%s"?</string>
+    <string name="main_delete_recording_confirm">Yes</string>
+    <string name="main_delete_recording_cancel">No</string>
 
     <!-- RecordingListItem -->
     <string name="recording_list_item_title">recording_title</string>
@@ -65,7 +69,7 @@
     <string name="triggers_duplicate_trigger_title">Duplicate trigger</string>
     <string name="triggers_duplicate_trigger_message">The trigger code you entered is already in the list.</string>
     <string name="triggers_delete_trigger_title">Delete trigger</string>
-    <string name="triggers_delete_trigger_message">Are you sure you like to delete this trigger?</string>
+    <string name="triggers_delete_trigger_message">Are you sure you\'d like to delete this trigger?</string>
     <string name="triggers_delete_trigger_confirm">Yes</string>
     <string name="triggers_delete_trigger_cancel">No</string>
     <string name="triggers_empty_dataset">No triggers</string>

@@ -18,11 +18,18 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import org.w3c.dom.Text;
+
 import java.util.ArrayList;
 import java.util.List;
 
-public class TriggersActivity extends AppCompatActivity implements OnTriggerLongPressListener {
+public class TriggersActivity extends AppCompatActivity implements OnTriggerLongPressListener, TextInputDialogResultListener, YNDialogResultListener {
     private static final String TAG = "triggers";
+    private static final int ADD_TRIGGER_DIALOG_ID = 0;
+    private static final int DELETE_TRIGGER_DIALOG_ID = 1;
+
+    // Deleting
+    private int deletionPosition = -1;
 
     // Triggers list
     private List<String> triggersList;
@@ -90,35 +97,14 @@ public class TriggersActivity extends AppCompatActivity implements OnTriggerLong
      * Show a dialog that allows the user to add a new trigger code
      */
     private void showAddTriggerDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle(getString(R.string.triggers_add_trigger_title));
-        builder.setMessage(getString(R.string.triggers_add_trigger_message));
-
-        // Create input container
-        FrameLayout container = new FrameLayout(this);
-        FrameLayout.LayoutParams params = new  FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        params.leftMargin = getResources().getDimensionPixelSize(R.dimen.dialog_margin);
-        params.rightMargin = getResources().getDimensionPixelSize(R.dimen.dialog_margin);
-
-        // Create input
-        EditText input = new EditText(this);
-        input.setInputType(InputType.TYPE_CLASS_TEXT);
-        input.setLayoutParams(params);
-
-        // Add input to container and set the view
-        container.addView(input);
-        builder.setView(container);
-
-        builder.setPositiveButton(getString(R.string.triggers_add_trigger_add), (DialogInterface dialog, int which) -> {
-            String trigger = input.getText().toString();
-            addTrigger(trigger);
-        });
-
-        builder.setNegativeButton(getString(R.string.triggers_add_trigger_cancel), (DialogInterface dialog, int which) -> {
-            dialog.cancel();
-        });
-
-        builder.show();
+        Utils.showTextInputDialog(
+                this,
+                this,
+                ADD_TRIGGER_DIALOG_ID,
+                getString(R.string.triggers_add_trigger_title),
+                getString(R.string.triggers_add_trigger_message),
+                getString(R.string.triggers_add_trigger_add),
+                getString(R.string.triggers_add_trigger_cancel));
     }
 
     /**
@@ -130,22 +116,12 @@ public class TriggersActivity extends AppCompatActivity implements OnTriggerLong
 
         // Validate trigger
         if (trigger.length() != 16) {
-            new AlertDialog.Builder(this)
-                    .setTitle(getString(R.string.triggers_invalid_trigger_title))
-                    .setIcon(R.drawable.icon_error)
-                    .setMessage(getString(R.string.triggers_invalid_trigger_message))
-                    .setPositiveButton(getString(R.string.ok), null)
-                    .show();
+            Utils.showErrorDialog(this, getString(R.string.triggers_invalid_trigger_title), getString(R.string.triggers_invalid_trigger_message), getString(R.string.ok));
             return;
         }
 
         if (triggersList.contains(trigger)) {
-            new AlertDialog.Builder(this)
-                    .setTitle(getString(R.string.triggers_duplicate_trigger_title))
-                    .setIcon(R.drawable.icon_error)
-                    .setMessage(getString(R.string.triggers_duplicate_trigger_message))
-                    .setPositiveButton(getString(R.string.ok), null)
-                    .show();
+            Utils.showErrorDialog(this, getString(R.string.triggers_duplicate_trigger_title), getString(R.string.triggers_duplicate_trigger_message), getString(R.string.ok));
             return;
         }
 
@@ -164,23 +140,41 @@ public class TriggersActivity extends AppCompatActivity implements OnTriggerLong
      */
     @Override
     public void onLongPress(View view, int position) {
-        new AlertDialog.Builder(this)
-            .setTitle(getString(R.string.triggers_delete_trigger_title))
-            .setMessage(getString(R.string.triggers_delete_trigger_message))
-            .setPositiveButton(getString(R.string.triggers_delete_trigger_confirm), (DialogInterface dialog, int which) -> {
-                triggersList.remove(position);
-                Preferences.setTriggersList(this, triggersList);
-                adapter.notifyDataSetChanged();
-                updateDatasetEmpty();
-            })
-            .setNegativeButton(getString(R.string.triggers_delete_trigger_cancel), (DialogInterface dialog, int which) -> {
+        Utils.showYNDialog(
+                this,
+                this,
+                DELETE_TRIGGER_DIALOG_ID,
+                getString(R.string.triggers_delete_trigger_title),
+                getString(R.string.triggers_delete_trigger_message),
+                getString(R.string.triggers_delete_trigger_confirm),
+                getString(R.string.triggers_delete_trigger_cancel));
 
-            })
-            .show();
+        deletionPosition = position;
     }
 
     private void updateDatasetEmpty() {
         emptyDatasetTextView.setVisibility(triggersList.size() == 0 ? View.VISIBLE : View.GONE);
         recyclerView.setVisibility(triggersList.size() == 0 ? View.GONE : View.VISIBLE);
+    }
+
+    @Override
+    public void onTextInputDialogResult(int dialogId, String result) {
+        if (dialogId == ADD_TRIGGER_DIALOG_ID && result != null) {
+            addTrigger(result);
+        }
+    }
+
+    @Override
+    public void onYNDialogResult(int dialogId, boolean result) {
+        if (dialogId == DELETE_TRIGGER_DIALOG_ID) {
+            if (result && deletionPosition != -1) {
+                triggersList.remove(deletionPosition);
+                Preferences.setTriggersList(this, triggersList);
+                adapter.notifyDataSetChanged();
+                updateDatasetEmpty();
+            }
+
+            deletionPosition = -1;
+        }
     }
 }

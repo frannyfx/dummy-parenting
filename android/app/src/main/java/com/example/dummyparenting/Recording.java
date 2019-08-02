@@ -36,4 +36,11 @@ public class Recording implements Serializable {
         this.recordingDate = recordingDate;
         this.filePath = filePath;
     }
+
+    public String getTitle() {
+        if (recordingTitle == null)
+            return "Recording #" + recordingId;
+
+        return recordingTitle;
+    }
 }
