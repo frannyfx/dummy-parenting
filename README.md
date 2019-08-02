@@ -4,12 +4,12 @@ An Android app which, when triggered by an AWS IoT button, records the last few 
 - A PubNub account;
 - An AWS account;
 - Android Studio;
-- One or more AWS IoT buttons;
+- One or more AWS IoT buttons.
 
 ## How to setup
 ### PubNub
 - Log into your PubNub account and create a new "App";
-- Click on your new app and save the "Demo Keyset" keys, which you will need to publish and subscribe to events;
+- Click on your new app and save the "Demo Keyset" keys, which you will need to publish and subscribe to events.
 
 ### AWS Lambda
 - Log into the AWS Management Console;
@@ -34,4 +34,5 @@ An Android app which, when triggered by an AWS IoT button, records the last few 
 - Go into the settings and click "Setup triggers". This will allow you to link IoT buttons with your phone;
 - Add a trigger by typing in the serial number of your IoT button;
 - Now, go back into settings and enable "Background audio recording";
-- Congratulations, you're now ready to record some audio!
+
+**Congratulations, you're now ready to record some audio!**
