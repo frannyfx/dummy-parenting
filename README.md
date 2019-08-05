@@ -1,5 +1,6 @@
 # dummy-parenting
 An Android app which, when triggered by an AWS IoT button, records the last few minutes of audio and keeps recording for a specified length of time.
+
 ## What you need
 - [A PubNub account](https://pubnub.com).
 - [An AWS account](https://aws.amazon.com).
@@ -25,8 +26,10 @@ An Android app which, when triggered by an AWS IoT button, records the last few 
 - Setup the button on your Wi-Fi, **ensuring you have selected the correct AWS region**, and when it asks what you'd like to trigger when the button is pressed, select the Lambda function you just created.
 
 ### Building the app
-- Open the Android project in Android Studio and compile it.
-- Install the app on your Android phone.
+- Open the Android project in Android Studio.
+- Open the `default_prefs.xml` file and replace the `pubnub_subscribe_key` value with your PubNub subscribe key.
+- Compile it (Build/Build APKs).
+- Move the APK to your Android phone and install it.
 
 **The app is now ready to be used.**
 
@@ -38,3 +41,6 @@ An Android app which, when triggered by an AWS IoT button, records the last few 
 - If you'd like to only enable the recording within specific time ranges, turn on the *"Scheduled recording"* option in the settings and add new time slots by pressing the *"Customise schedule"* button.
 
 **Congratulations, you're now ready to record some audio!**
+
+## Caveats
+- If the user has not set up any triggers in the app, it will automatically subscribe to a default channel for debugging purposes. This can be disabled/enabled by changing the `debug_subscribe_default_enabled` value in the `default_prefs.xml` file. The name of this channel can be modified by changing the `debug_subscribe_default_channel_name` value in the same file.

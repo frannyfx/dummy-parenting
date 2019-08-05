@@ -5,6 +5,8 @@
     <string name="recordings_folder_name">recordings</string>
     <bool name="background_recording_default">false</bool>
     <bool name="schedule_enabled_default">false</bool>
+    <bool name="debug_subscribe_default_enabled">true</bool>
+    <string name="debug_subscribe_default_channel_name">trigger_test</string>
     <integer name="circular_recording_length_default">5</integer>
     <integer name="post_trigger_recording_length_default">10</integer>
     <integer name="schedule_default_start_time">0</integer>

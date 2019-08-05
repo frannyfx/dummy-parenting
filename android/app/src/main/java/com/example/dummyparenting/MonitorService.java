@@ -315,8 +315,10 @@ public class MonitorService extends Service implements ConnectivityChangeListene
             @Override
             public void message(PubNub pubnub, PNMessageResult message) {
                 // Any message sets triggered to true
-                // TODO: Parse message
-                isTriggered = true;
+                if (isRecording)
+                    isTriggered = true;
+                else
+                    Log.d(TAG, "Received a trigger but recording is disabled! Ignoring it...");
             }
 
             @Override
@@ -334,10 +336,21 @@ public class MonitorService extends Service implements ConnectivityChangeListene
             pn.unsubscribe().channels(subscribedChannels).execute();
         }
 
-        // Subsrcibe to new channels
+        // Load channels
         subscribedChannels = new ArrayList<String>(Preferences.getTriggersList(this));
-        pn.subscribe().channels(subscribedChannels.size() == 0 ? Arrays.asList("trigger_test") : subscribedChannels).execute();
-        Log.d(TAG, String.format("PubNub subscribed to %d trigger channel%s.", subscribedChannels.size(), subscribedChannels.size() == 1 ? "" : "s"));
+
+        // If there are any channels to subscribe to, just sub to those...
+        if (subscribedChannels.size() > 0)
+            Log.d(TAG, String.format("Subscribed to %d trigger channel%s.", subscribedChannels.size(), subscribedChannels.size() == 1 ? "" : "s"));
+        else if (getResources().getBoolean(R.bool.debug_subscribe_default_enabled)) {
+            // ...otherwise, subscribe to the default channel if the default channel feature is enabled.
+            Log.d(TAG, String.format("Subscribed to default channel '%s'", getString(R.string.debug_subscribe_default_channel_name)));
+            subscribedChannels = Arrays.asList(getString(R.string.debug_subscribe_default_channel_name));
+        } else
+            Log.d(TAG, "PubNub not subscribed to any channels!");
+
+        // Subscribe
+        pn.subscribe().channels(subscribedChannels).execute();
     }
 
     /**
