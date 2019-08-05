@@ -102,6 +102,16 @@ public class Utils {
                 .show();
     }
 
+    public static String getTimeStringFromMinutes(int minutes) {
+        int hours = minutes / 60;
+        return String.format("%d:%02d", hours, minutes % 60);
+    }
+
+    public static int getMinutes(Date date) {
+        int hours = Integer.parseInt((String)new SimpleDateFormat("HH").format(date));
+        int minutes = Integer.parseInt((String)new SimpleDateFormat("mm").format(date));
+        return hours * 60 + minutes;
+    }
 
     public static void runInBackground(Runnable runnable) {
         Thread thread = new Thread(runnable, "Background thread");

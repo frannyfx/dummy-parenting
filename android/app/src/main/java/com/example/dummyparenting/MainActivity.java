@@ -1,8 +1,5 @@
 package com.example.dummyparenting;
 
-import android.Manifest;
-import android.app.ActivityManager;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
@@ -11,25 +8,21 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
-import android.widget.CompoundButton;
-import android.widget.Switch;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements RecordingListener, YNDialogResultListener {
+public class MainActivity extends AppCompatActivity implements ListItemListener, YNDialogResultListener {
     private static final String TAG = "main";
     private static final int DELETE_RECORDING_DIALOG_ID = 0;
 
@@ -65,7 +58,7 @@ public class MainActivity extends AppCompatActivity implements RecordingListener
         // Initialise list
         recordingsList = new ArrayList<>();
         adapter = new RecordingAdapter(recordingsList);
-        adapter.setRecordingListener(this);
+        adapter.setListItemListener(this);
         layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(adapter);

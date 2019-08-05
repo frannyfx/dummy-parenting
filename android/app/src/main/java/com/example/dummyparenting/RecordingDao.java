@@ -29,7 +29,7 @@ public abstract class RecordingDao {
     abstract void delete(Recording recording);
 
     @Update
-    abstract void update(Recording... users);
+    abstract void update(Recording... recordings);
 
     /**
      * Delete the recording along with its file

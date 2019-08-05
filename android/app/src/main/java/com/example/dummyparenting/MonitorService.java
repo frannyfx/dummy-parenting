@@ -12,6 +12,8 @@ import android.os.IBinder;
 import android.util.Log;
 
 import androidx.annotation.Nullable;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.Observer;
 
 import com.pubnub.api.PNConfiguration;
 import com.pubnub.api.PubNub;
@@ -46,6 +48,13 @@ public class MonitorService extends Service implements ConnectivityChangeListene
     private boolean recordingEnabled = false;
     private boolean scheduleEnabled = false;
 
+    // Schedule
+    private List<TimeSlot> timeSlotsList = new ArrayList<>();
+    private TimeSlot currentSlot;
+    private TimeSlot nextSlot;
+    private LiveData<List<TimeSlot>> timeSlotsObservable;
+    private Observer<List<TimeSlot>> timeSlotsObserver;
+
     // Audio recording
     private AudioRecord recorder;
     private Thread recordingThread;
@@ -79,6 +88,7 @@ public class MonitorService extends Service implements ConnectivityChangeListene
 
         // Initialise
         initialisePubNub();
+        setupSchedule();
         startMonitoring();
 
         // Listen to network changes
@@ -106,6 +116,21 @@ public class MonitorService extends Service implements ConnectivityChangeListene
     }
 
     /**
+     * Retrieve the schedule and listen for new elements
+     */
+    private void setupSchedule() {
+        // Asynchronously update the list
+        timeSlotsObservable = AppDatabase.getInstance(this).timeSlotDao().getByTime();
+        timeSlotsObserver = (List<TimeSlot> timeSlots) -> {
+            Log.d(TAG, String.format("Monitor loaded %d time slots.", timeSlots.size()));
+            timeSlotsList = timeSlots;
+            waitingForUpdate = false;
+        };
+
+        timeSlotsObservable.observeForever(timeSlotsObserver);
+    }
+
+    /**
      * Monitor thread loop.
      */
     private void monitor() {
@@ -120,8 +145,31 @@ public class MonitorService extends Service implements ConnectivityChangeListene
             if (recordingEnabled) {
                 // Check if the schedule is enabled
                 if (scheduleEnabled) {
-                    // We do have a schedule, retrieve it...
-                    stopRecording();
+                    // Get current time and check if we're inside of a slot
+                    int currentTime = Utils.getMinutes(new Date());
+
+                    // Reset old slots
+                    currentSlot = null;
+                    nextSlot = null;
+
+                    // Loop through the slots
+                    for (TimeSlot slot : timeSlotsList) {
+                        // Find the current slot.
+                        if (slot.startTime <= currentTime && slot.endTime >= currentTime)
+                            currentSlot = slot;
+
+                        // Get the first next slot
+                        if (slot.startTime > currentTime && (nextSlot == null || slot.startTime < nextSlot.startTime))
+                            nextSlot = slot;
+                    }
+
+                    Log.d(TAG, String.format("Current slot found: %b - Next slot found: %b", currentSlot != null, nextSlot != null));
+
+                    // Start or stop the recording depending on whether we're inside a time slot
+                    if (currentSlot != null)
+                        startRecording();
+                    else
+                        stopRecording();
                 } else {
                     // We don't have a schedule, start/keep recording
                     startRecording();
@@ -134,6 +182,21 @@ public class MonitorService extends Service implements ConnectivityChangeListene
 
             // Wait for update
             while (waitingForUpdate) {
+                // If the schedule is enabled, check if we need to stop or start...
+                if (scheduleEnabled) {
+                    int currentTime = Utils.getMinutes(new Date());
+                    if (currentSlot != null && currentSlot.endTime < currentTime) {
+                        // The current time slot has run out!
+                        break;
+                    }
+
+                    if (nextSlot != null && currentTime >= nextSlot.startTime) {
+                        // The next slot should start!
+                        break;
+                    }
+                }
+
+
                 try {
                     Thread.sleep(100);
                 } catch (Exception e) {}
@@ -445,6 +508,9 @@ public class MonitorService extends Service implements ConnectivityChangeListene
 
         // Unsubscribe from events
         EventBus.getDefault().unregister(this);
+
+        // Stop observing live data
+        timeSlotsObservable.removeObserver(timeSlotsObserver);
 
         // Stop monitoring
         isMonitoring = false;

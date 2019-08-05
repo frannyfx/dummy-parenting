@@ -31,13 +31,13 @@ public class Preferences {
 
     public static boolean getScheduleEnabled(Context context) {
         SharedPreferences sharedPref = getSharedPrefs(context);
-        return sharedPref.getBoolean(context.getString(R.string.schedule_key), context.getResources().getBoolean(R.bool.schedule_default));
+        return sharedPref.getBoolean(context.getString(R.string.schedule_enabled_key), context.getResources().getBoolean(R.bool.schedule_enabled_default));
     }
 
     public static void setScheduleEnabled(Context context, boolean value) {
         SharedPreferences sharedPref = getSharedPrefs(context);
         SharedPreferences.Editor editor = sharedPref.edit();
-        editor.putBoolean(context.getString(R.string.schedule_key), value);
+        editor.putBoolean(context.getString(R.string.schedule_enabled_key), value);
         editor.commit();
 
         EventBus.getDefault().post(new SettingsChangedEvent());

@@ -9,7 +9,7 @@ import java.io.Serializable;
 import java.util.Date;
 
 @Entity
-public class Recording implements Serializable {
+public class Recording {
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "recording_id")
     public int recordingId;

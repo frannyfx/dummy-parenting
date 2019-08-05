@@ -1,7 +1,7 @@
 <resources>
     <!-- Settings keys -->
     <string name="background_recording_key">background_recording</string>
-    <string name="schedule_key">schedule</string>
+    <string name="schedule_enabled_key">schedule_enabled</string>
     <string name="circular_recording_length_key">circular_recording_length</string>
     <string name="post_trigger_recording_length_key">post_trigger_recording_length</string>
     <string name="triggers_list_key">triggers_list_key</string>
@@ -38,9 +38,10 @@
     <!-- ScheduleActivity -->
     <string name="schedule_activity_title">Customise schedule</string>
     <string name="schedule_default_state_option_name">Schedule default state</string>
-    <string name="schedule_default_state_option_description">If the schedule\'s default state is &quot;on&quot;, you will define time slots where background audio collection is disabled, while if it\'s &quot;off&quot;, you will define time slots where audio collection is enabled.</string>
-    <string name="schedule_blacklisted_time_slots">Blacklisted time slots</string>
-    <string name="schedule_whitelisted_time_slots">Whitelisted time slots</string>
+    <string name="schedule_default_state_option_description">The default state of the schedule system. If it\'s on that means the system will record all the time apart from the defined slots, while if it\'s off, it won\'t record anything apart from the defined slots.</string>
+    <string name="schedule_blacklisted_time_slots">Disabled time slots</string>
+    <string name="schedule_whitelisted_time_slots">Enabled time slots</string>
+    <string name="schedule_empty_dataset">No time slots</string>
 
     <!-- SettingsActivity -->
     <string name="settings_activity_title">Settings</string>

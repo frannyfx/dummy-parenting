@@ -10,16 +10,16 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
 
-public class RecordingAdapter extends RecyclerView.Adapter<RecordingAdapter.RecordingHolder> {
-    private List<Recording> dataset;
+public class TimeSlotAdapter extends RecyclerView.Adapter<TimeSlotAdapter.TimeSlotHolder> {
+    private List<TimeSlot> dataset;
     private ListItemListener listItemListener;
 
     /**
      * Create the adapter.
-     * @param recordingList The dataset of recordings.
+     * @param timeSlotList The dataset of time slots.
      */
-    public RecordingAdapter(List<Recording> recordingList) {
-        dataset = recordingList;
+    public TimeSlotAdapter(List<TimeSlot> timeSlotList) {
+        dataset = timeSlotList;
     }
 
     /**
@@ -31,23 +31,16 @@ public class RecordingAdapter extends RecyclerView.Adapter<RecordingAdapter.Reco
     }
 
     // Define the item type
-    public class RecordingHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {
+    public class TimeSlotHolder extends RecyclerView.ViewHolder implements View.OnLongClickListener {
         public CardView cardView;
 
-        public RecordingHolder(CardView v) {
+        public TimeSlotHolder(CardView v) {
             // Setup the views
             super(v);
             cardView = v;
 
             // Set interaction listeners
-            v.setOnClickListener(this);
             v.setOnLongClickListener(this);
-        }
-
-        @Override
-        public void onClick(View v) {
-            if (listItemListener != null)
-                listItemListener.onClick(cardView, getAdapterPosition());
         }
 
         @Override
@@ -60,22 +53,22 @@ public class RecordingAdapter extends RecyclerView.Adapter<RecordingAdapter.Reco
 
     // Create new views (invoked by the layout manager)
     @Override
-    public RecordingAdapter.RecordingHolder onCreateViewHolder(ViewGroup parent,
-                                                           int viewType) {
+    public TimeSlotAdapter.TimeSlotHolder onCreateViewHolder(ViewGroup parent,
+                                                               int viewType) {
         // create a new view
         CardView v = (CardView) LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.recording_list_item, parent, false);
+                .inflate(R.layout.time_slot_list_item, parent, false);
 
-        RecordingAdapter.RecordingHolder vh = new RecordingAdapter.RecordingHolder(v);
+        TimeSlotAdapter.TimeSlotHolder vh = new TimeSlotAdapter.TimeSlotHolder(v);
         return vh;
     }
 
     // Replace the contents of a view (invoked by the layout manager)
     @Override
-    public void onBindViewHolder(RecordingAdapter.RecordingHolder holder, int position) {
-        Recording recording = dataset.get(position);
-        ((TextView)holder.cardView.findViewById(R.id.recording_title_textview)).setText(recording.getTitle());
-        ((TextView)holder.cardView.findViewById(R.id.recording_date_textview)).setText(Utils.getNiceDate(recording.recordingDate));
+    public void onBindViewHolder(TimeSlotAdapter.TimeSlotHolder holder, int position) {
+        TimeSlot timeSlot = dataset.get(position);
+        ((TextView)holder.cardView.findViewById(R.id.time_slot_start_time_textview)).setText(Utils.getTimeStringFromMinutes(timeSlot.startTime));
+        ((TextView)holder.cardView.findViewById(R.id.time_slot_end_time_textview)).setText(Utils.getTimeStringFromMinutes(timeSlot.endTime));
     }
 
     // Return the size of your dataset (invoked by the layout manager)

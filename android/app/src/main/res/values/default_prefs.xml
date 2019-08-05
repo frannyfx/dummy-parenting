@@ -4,7 +4,9 @@
     <string name="pubnub_subscribe_key">sub-c-a663fb80-ad59-11e9-a87a-b2acb6d6da6e</string>
     <string name="recordings_folder_name">recordings</string>
     <bool name="background_recording_default">false</bool>
-    <bool name="schedule_default">false</bool>
+    <bool name="schedule_enabled_default">false</bool>
     <integer name="circular_recording_length_default">5</integer>
     <integer name="post_trigger_recording_length_default">10</integer>
+    <integer name="schedule_default_start_time">0</integer>
+    <integer name="schedule_default_end_time">1439</integer>
 </resources>

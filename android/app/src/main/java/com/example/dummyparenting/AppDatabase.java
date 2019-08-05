@@ -9,10 +9,11 @@ import androidx.room.TypeConverter;
 
 import java.util.Date;
 
-@Database(entities = {Recording.class}, version = 2)
+@Database(entities = {Recording.class, TimeSlot.class}, version = 3)
 public abstract class AppDatabase extends RoomDatabase {
     private static AppDatabase instance;
     public abstract RecordingDao recordingDao();
+    public abstract TimeSlotDao timeSlotDao();
 
     public static AppDatabase getInstance(Context context) {
         if (instance == null) {

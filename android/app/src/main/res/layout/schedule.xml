@@ -1,56 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<LinearLayout xmlns:app="http://schemas.android.com/apk/res-auto"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_marginLeft="16dp"
-    android:layout_marginTop="16dp"
-    android:layout_marginRight="16dp"
-    android:orientation="vertical"
-    xmlns:android="http://schemas.android.com/apk/res/android">
+    android:orientation="vertical">
 
-    <LinearLayout
-        android:id="@+id/schedule_default_state"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
-        android:orientation="vertical">
-
-        <Switch
-            android:id="@+id/schedule_default_state_switch"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/schedule_default_state_option_name"
-            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-            android:textSize="18sp" />
-
-        <TextView
-            android:id="@+id/schedule_default_state_textview"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/schedule_default_state_option_description" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/schedule_time_ranges"
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/time_slots_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginBottom="16dp"
-        android:orientation="vertical">
+        tools:listitem="@layout/time_slot_list_item">
 
-        <TextView
-            android:id="@+id/textView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/schedule_whitelisted_time_slots"
-            android:textColor="@android:color/primary_text_light"
-            android:textSize="18sp" />
+    </androidx.recyclerview.widget.RecyclerView>
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/schedule_time_ranges_recyclerview"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" >
+    <TextView
+        android:id="@+id/schedule_empty_dataset_textview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:text="@string/schedule_empty_dataset"
+        android:textAlignment="center"
+        tools:visibility="gone" />
 
-        </androidx.recyclerview.widget.RecyclerView>
-    </LinearLayout>
 </LinearLayout>
