@@ -20,13 +20,15 @@ An Android app which, when triggered by an AWS IoT button, records the last few 
 - Go back to your Lambda function and find the *"Function code"* section. In the dropdown menu called *"Code entry type,"* select *"Upload a .zip file,"* and upload the file you've just zipped.
 - Now, find the *"Environment variables"* section and set `PUBLISH_KEY` to your PubNub publish key, and `SUBSCRIBE_KEY` to your PubNub subscribe key.
 
-### AWS IoT button
+### Setting up your buttons
 - Download the AWS IoT app on your mobile device (iOS/Android) and open it.
 - Setup the button on your Wi-Fi, **ensuring you have selected the correct AWS region**, and when it asks what you'd like to trigger when the button is pressed, select the Lambda function you just created.
 
 ### Building the app
 - Open the Android project in Android Studio and compile it.
 - Install the app on your Android phone.
+
+**The app is now ready to be used.**
 
 ## Usage
 - Open the app on your Android phone and grant it all the permissions it requests;
